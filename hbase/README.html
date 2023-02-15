@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Ejercicios</title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+/* From extension ms-toolsai.jupyter */
+/* These classnames are inherited from bootstrap, but are present in most notebook renderers */
+
+.alert {
+    width: auto;
+    padding: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.alert > *:last-child {
+    margin-bottom: 0;
+}
+#preview > .alert:last-child {
+    /* Prevent this being set to zero by the default notebook stylesheet */
+    padding-bottom: 1em;
+}
+
+.alert-success {
+    /* Note there is no suitable color available, so we just copy "info" */
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-info {
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-warning {
+    background-color: var(--theme-warning-background);
+    color: var(--theme-warning-foreground);
+}
+.alert-danger {
+    background-color: var(--theme-error-background);
+    color: var(--theme-error-foreground);
+}
+
+</style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="ejercicios">Ejercicios</h1>
+<ul>
+<li><a href="#ejercicios">Ejercicios</a>
+<ul>
+<li><a href="#usando-la-shell-de-hbase">Usando la SHELL de Hbase</a></li>
+<li><a href="#acceso-a-datos">Acceso a datos</a></li>
+<li><a href="#usando-el-api-de-desarrollador">Usando el API de desarrollador</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="usando-la-shell-de-hbase">Usando la SHELL de Hbase</h2>
+<ol>
+<li>
+<p>Comencemos abriendo la terminal.</p>
+</li>
+<li>
+<p>Abrimos Hbase → $ hbase shell</p>
+</li>
+<li>
+<p>Vamos a crear nuestra primera tabla. Crear una tabla llamada primeraTabla que tenga una columna de familia llamada primeraFamilia.</p>
+<p><code>create 'primeraTabla', 'primeraFamilia'</code></p>
+<blockquote>
+<p>Nos puede mostrar el siguiente error <code>Can't get master address from ZooKeeper. I am getting this error on Creating Hbase table</code>. Se soluciona reiniciando la máquina virtual. <a href="https://community.cloudera.com/t5/Support-Questions/HBase-Can-t-get-master-address-from-ZooKeeper-I-am-getting/m-p/29935">Solución</a>.</p>
+</blockquote>
+</li>
+<li>
+<p>Comprueba que la tabla se ha creado correctamente. Puedes usar el comando describe.</p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\hbase\1.4.png" alt="1.4"></p>
+</li>
+<li>
+<p>Creamos un namespace de nombre nmprueba:</p>
+<p><code>create_namespace 'nmprueba'</code></p>
+</li>
+<li>
+<p>Deshabilitamos la tabla que hemos creado anteriormente.</p>
+<p><code>disable 'primeraTabla'</code></p>
+</li>
+<li>
+<p>Borrar la primera tabla que hemos creado.</p>
+<p><code>drop 'primeraTabla'</code></p>
+</li>
+<li>
+<p>Crea una nueva tabla llamada ciudad.</p>
+<p><code>create 'ciudad', 'datos'</code></p>
+</li>
+<li>
+<p>Modifica la tabla ciudad y añade una nueva familia de columna que se llame localización.</p>
+<p><code>disable 'ciudad'</code></p>
+<p><code>alter 'ciudad', NAME =&gt; 'localizacion'</code></p>
+<p><code>enable 'ciudad'</code></p>
+</li>
+<li>
+<p>Intenta ver todas las tablas del sistema.</p>
+<p><code>list</code></p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\hbase\1.5-9.png" alt="1.5-9"></p>
+</li>
+<li>
+<p>Modificar la familia de columna localización para que solo guarde una versión.</p>
+<p><code>disable 'ciudad'</code></p>
+<p><code>alter 'ciudad', NAME =&gt;'localizacion', VERSIONS =&gt;1</code></p>
+<p><code>enable 'ciudad'</code></p>
+</li>
+<li>
+<p>Borra la familia localización de la tabla ciudad.</p>
+<p><code>disable 'ciudad'</code></p>
+<p><code>alter 'ciudad', NAME =&gt;'localizacion', METHOD =&gt; 'delete'</code></p>
+<p><code>enable 'ciudad'</code></p>
+</li>
+<li>
+<p>Comprueba que los cambios se han realizado.</p>
+<p><code>describe 'ciudad'</code></p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\hbase\1.13.png" alt="1.13"></p>
+<blockquote>
+<p>Vemos que ya no se describe la familia localización</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="acceso-a-datos">Acceso a datos</h2>
+<ol>
+<li>
+<p>Abre la shell de HBase</p>
+</li>
+<li>
+<p>Creamos una tabla llamada mundo, con dos familias de columnas; ciudad y población.</p>
+<p><code>create 'mundo', 'ciudad', 'poblacion'</code></p>
+</li>
+<li>
+<p>Obtener la fila 1000 de la tabla mundo. Debería no existir.</p>
+<p><code>get 'mundo', '1000'</code></p>
+</li>
+<li>
+<p>Introducimos en la tabla mundo una fila con las siguientes características:</p>
+<ul>
+<li>
+<p>Nombre de la tabla: 'mundo'</p>
+</li>
+<li>
+<p>Clave: '10'</p>
+</li>
+<li>
+<p>Column Family: 'ciudad'</p>
+</li>
+<li>
+<p>Column descriptor: 'nombre' y el valor 'Pamplona'</p>
+</li>
+<li>
+<p>Column descriptor: 'region' y el valor 'Navarra'</p>
+</li>
+</ul>
+<p><code>put 'mundo', '10', 'ciudad:nombre', 'Pamplona'</code></p>
+<p><code>put 'mundo', '10', 'ciudad:region', 'Navarra'</code></p>
+</li>
+<li>
+<p>Comprueba que la tabla se ha creado correctamente.</p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\hbase\2.5.png" alt="2.5"></p>
+</li>
+<li>
+<p>Añade ahora a esa fila, otros dos descriptores; uno para las coordenadas del eje X y otro para las coordenadas del eje Y. Los valores que debes introducir son: 42°49′00″N y 1°39′00″O respectivamente. Para no tener problemas con el formato de las coordenadas introducir los números así: 42.49.00.</p>
+<p><code>put 'mundo', '10', 'ciudad:coordenadasX', '42.49.00'</code></p>
+<p><code>put 'mundo', '10', 'ciudad:coordenadasY', '01.39.00'</code></p>
+</li>
+<li>
+<p>Además, añade a esa fila la población de pamplona: 197 138 habitantes.</p>
+<p><code>put 'mundo', '10', 'poblacion', '197138'</code></p>
+</li>
+<li>
+<p>Comprueba finalmente que los datos se han insertado correctamente.</p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\hbase\2.8.png" alt="2.8"></p>
+</li>
+<li>
+<p>Supongamos que la población de Pamplona ha cambiado en los últimos años y hay que actualizar la base de datos. Ahora Pamplona debe tener 200.000 habitantes.</p>
+<p><code>put 'mundo', '10', 'poblacion', '200000'</code></p>
+</li>
+<li>
+<p>Obtener la fila con clave 10 (Pamplona), mostrando los 3 últimos valores de habitantes que han sido almacenados.</p>
+<blockquote>
+<p>Por defecto tengo que se guarde 1 versión solamente, así que primero editamos esta característica.</p>
+</blockquote>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\hbase\2.10.png" alt="2.10"></p>
+<p><code>get 'mundo', '10', {COLUMN =&gt; 'poblacion', VERSIONS =&gt; 3}</code></p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\hbase\2.10-1.png" alt="2.10-1"></p>
+</li>
+<li>
+<p>Borrar los campos de coordenadas.</p>
+<p><code>delete 'mundo', '10', 'ciudad:coordenadasX'</code></p>
+<p><code>delete 'mundo', '10', 'ciudad:coordenadasY'</code></p>
+</li>
+<li>
+<p>Comprueba que se han borrado dichos campos.</p>
+<p><code>get 'mundo', '10'</code></p>
+</li>
+<li>
+<p>A continuación, borra la fila entera correspondiente a Pamplona (key = 10)</p>
+<p><code>deleteall 'mundo', '10'</code></p>
+</li>
+<li>
+<p>Comprueba que la operación se ha realizado correctamente.</p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\hbase\2.14.png" alt="2.14"></p>
+</li>
+</ol>
+<h2 id="usando-el-api-de-desarrollador">Usando el API de desarrollador</h2>
+
+        <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+        
+    </body>
+    </html>

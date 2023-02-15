@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+/* From extension ms-toolsai.jupyter */
+/* These classnames are inherited from bootstrap, but are present in most notebook renderers */
+
+.alert {
+    width: auto;
+    padding: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.alert > *:last-child {
+    margin-bottom: 0;
+}
+#preview > .alert:last-child {
+    /* Prevent this being set to zero by the default notebook stylesheet */
+    padding-bottom: 1em;
+}
+
+.alert-success {
+    /* Note there is no suitable color available, so we just copy "info" */
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-info {
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-warning {
+    background-color: var(--theme-warning-background);
+    color: var(--theme-warning-foreground);
+}
+.alert-danger {
+    background-color: var(--theme-error-background);
+    color: var(--theme-error-foreground);
+}
+
+/* From extension ms-toolsai.jupyter-renderers */
+/*
+Found that the colors of the alert boxes do not change with different themes in jlab.
+Hence hardcoded them here.
+*/
+
+.alert {
+    width: auto;
+    padding: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+	border-style: solid;
+	border-width: 1px;
+}
+.alert > *:last-child {
+    margin-bottom: 0;
+}
+#preview > .alert:last-child {
+    /* Prevent this being set to zero by the default notebook stylesheet */
+    padding-bottom: 1em;
+}
+
+.alert-success {
+    background-color: rgb(200,230,201);
+    color: rgb(27,94,32);
+}
+.alert-info {
+    background-color: rgb(178,235,242);
+    color: rgb(0,96,100);
+}
+.alert-warning {
+    background-color: rgb(255,224,178);
+    color: rgb(230,81,0);
+}
+.alert-danger {
+    background-color: rgb(255,205,210);
+    color: rgb(183,28,28);
+}
+
+</style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <p>Cargamos el archivo <code>access_log_Jul95</code> como archivo de texto utilizando expresiones regulares</p>
+<p>Antes de nada, importamos las funciones de spark.sql (en spark-shell no hace falta)</p>
+<pre><code class="language-scala"><span class="hljs-keyword">import</span> org.apache.spark.sql.functions._
+</code></pre>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> logs = spark.read.text(<span class="hljs-string">&quot;file:///C:/Users/didac.blanco/Documents/recursos/BIG DATA/repo ejercicios/nasa logs/logs&quot;</span>)
+</code></pre>
+<p>Esta carpeta no existe en git debido al peso de los archivos</p>
+<p>realizamos la extracción mediante regex:</p>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> regex = <span class="hljs-string">&quot;^([^ ]+) - - \\[(\\d{2}/\\w{3}/\\d{4}:\\d{2}:\\d{2}:\\d{2}).*?\\] \&quot;(.*?) (.*?)(HTTP/.*?) *?\&quot; (.+?) (.*+)&quot;</span>
+<span class="hljs-keyword">val</span> df = logs.select(
+    regexp_extract($<span class="hljs-string">&quot;value&quot;</span>, regex, <span class="hljs-number">1</span>).alias(<span class="hljs-string">&quot;host&quot;</span>),
+    regexp_extract($<span class="hljs-string">&quot;value&quot;</span>, regex, <span class="hljs-number">2</span>).alias(<span class="hljs-string">&quot;date&quot;</span>),
+    regexp_extract($<span class="hljs-string">&quot;value&quot;</span>, regex, <span class="hljs-number">3</span>).alias(<span class="hljs-string">&quot;method&quot;</span>),
+    regexp_extract($<span class="hljs-string">&quot;value&quot;</span>, regex, <span class="hljs-number">4</span>).alias(<span class="hljs-string">&quot;resource&quot;</span>),
+    regexp_extract($<span class="hljs-string">&quot;value&quot;</span>, regex, <span class="hljs-number">5</span>).alias(<span class="hljs-string">&quot;protocol&quot;</span>),
+    regexp_extract($<span class="hljs-string">&quot;value&quot;</span>, regex, <span class="hljs-number">6</span>).alias(<span class="hljs-string">&quot;status&quot;</span>),
+    regexp_extract($<span class="hljs-string">&quot;value&quot;</span>, regex, <span class="hljs-number">7</span>).alias(<span class="hljs-string">&quot;size&quot;</span>)
+)
+</code></pre>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> dfWithMonth = df.withColumn(<span class="hljs-string">&quot;month&quot;</span>, regexp_extract($<span class="hljs-string">&quot;date&quot;</span>, <span class="hljs-string">&quot;\\d{2}/(\\w{3})/\\d{4}:\\d{2}:\\d{2}:\\d{2}&quot;</span>, <span class="hljs-number">1</span>))
+
+<span class="hljs-keyword">val</span> monthNumber: <span class="hljs-type">String</span> =&gt; <span class="hljs-type">Int</span> = {
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Jan&quot;</span> =&gt; <span class="hljs-number">1</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Feb&quot;</span> =&gt; <span class="hljs-number">2</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Mar&quot;</span> =&gt; <span class="hljs-number">3</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Apr&quot;</span> =&gt; <span class="hljs-number">4</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;May&quot;</span> =&gt; <span class="hljs-number">5</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Jun&quot;</span> =&gt; <span class="hljs-number">6</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Jul&quot;</span> =&gt; <span class="hljs-number">7</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Aug&quot;</span> =&gt; <span class="hljs-number">8</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Sep&quot;</span> =&gt; <span class="hljs-number">9</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Oct&quot;</span> =&gt; <span class="hljs-number">10</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Nov&quot;</span> =&gt; <span class="hljs-number">11</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Dec&quot;</span> =&gt; <span class="hljs-number">12</span>
+    <span class="hljs-keyword">case</span> _ =&gt; <span class="hljs-number">0</span>
+  }
+<span class="hljs-keyword">val</span> monthToNumber = udf(monthNumber)
+<span class="hljs-keyword">val</span> dfWithMonthNumber = dfWithMonth.withColumn(<span class="hljs-string">&quot;monthNumber&quot;</span>, monthToNumber($<span class="hljs-string">&quot;month&quot;</span>))
+dfWithMonthNumber.show()
+<span class="hljs-keyword">val</span> dfWithDay = dfWithMonthNumber.withColumn(<span class="hljs-string">&quot;day&quot;</span>, regexp_extract($<span class="hljs-string">&quot;date&quot;</span>, <span class="hljs-string">&quot;^(\\d{2})/\\w{3}/\\d{4}:\\d{2}:\\d{2}:\\d{2}&quot;</span>, <span class="hljs-number">1</span>))
+</code></pre>
+<ul>
+<li>¿Cuáles son los distintos protocolos web utilizados? Agrúpalos.</li>
+</ul>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> groupedProtocols = df.select(<span class="hljs-string">&quot;protocol&quot;</span>).groupBy(<span class="hljs-string">&quot;protocol&quot;</span>).agg(count(<span class="hljs-string">&quot;*&quot;</span>).alias(<span class="hljs-string">&quot;count&quot;</span>))
+groupedProtocols.show(truncate=<span class="hljs-literal">false</span>)
+</code></pre>
+<pre><code>+--------------------+-------+
+|            protocol|  count|
++--------------------+-------+
+|                    |   4884|
+|           HTTP/V1.0|    279|
+|            HTTP/1.0|3455200|
+|HTTP/1.0From:  &lt;b...|   1235|
+|HTTP/1.0 200 OKDa...|      2|
+|              HTTP/*|     13|
++--------------------+-------+
+</code></pre>
+<ul>
+<li>¿Cuáles son los códigos de estado más comunes en la web? Agrúpalos y ordénalos
+para ver cuál es el más común.</li>
+</ul>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> groupedStatus = df.select(<span class="hljs-string">&quot;status&quot;</span>).groupBy(<span class="hljs-string">&quot;status&quot;</span>).agg(count(<span class="hljs-string">&quot;*&quot;</span>).alias(<span class="hljs-string">&quot;count&quot;</span>)).orderBy(<span class="hljs-string">&quot;count&quot;</span>)
+groupedStatus.show()
+</code></pre>
+<pre><code>+------+-------+
+|status|  count|
++------+-------+
+|   501|     41|
+|   500|     65|
+|   403|    225|
+|      |   4884|
+|   404|  20700|
+|   302|  73030|
+|   304| 266773|
+|   200|3095895|
++------+-------+
+</code></pre>
+<ul>
+<li>¿Y los métodos de petición (verbos) más utilizados?</li>
+</ul>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> groupedMethods = df.select(<span class="hljs-string">&quot;method&quot;</span>).groupBy(<span class="hljs-string">&quot;method&quot;</span>).agg(count(<span class="hljs-string">&quot;*&quot;</span>).alias(<span class="hljs-string">&quot;count&quot;</span>)).orderBy(<span class="hljs-string">&quot;count&quot;</span>)
+groupedMethods.show()
+</code></pre>
+<pre><code>+------+-------+
+|method|  count|
++------+-------+
+|  POST|    222|
+|      |   4884|
+|  HEAD|   7917|
+|   GET|3448590|
++------+-------+
+</code></pre>
+<ul>
+<li>¿Qué recurso tuvo la mayor transferencia de bytes de la página web?</li>
+</ul>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> totalBytes = df.groupBy(<span class="hljs-string">&quot;resource&quot;</span>).agg(sum(<span class="hljs-string">&quot;size&quot;</span>).alias(<span class="hljs-string">&quot;total_bytes&quot;</span>)).orderBy(desc(<span class="hljs-string">&quot;total_bytes&quot;</span>))
+totalBytes.show(<span class="hljs-number">1</span>, truncate=<span class="hljs-literal">false</span>)
+</code></pre>
+<pre><code>+--------------------------------------------------+-------------+
+|resource                                          |total_bytes  |
++--------------------------------------------------+-------------+
+|/shuttle/missions/sts-71/movies/sts-71-launch.mpg |3.194115706E9|
++--------------------------------------------------+-------------+
+</code></pre>
+<ul>
+<li>Además, queremos saber que recurso de nuestra web es el que más tráfico recibe. Es
+decir, el recurso con más registros en nuestro log.</li>
+</ul>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> resourceCount = df.groupBy(<span class="hljs-string">&quot;resource&quot;</span>).agg(count(<span class="hljs-string">&quot;*&quot;</span>).alias(<span class="hljs-string">&quot;count&quot;</span>)).orderBy(desc(<span class="hljs-string">&quot;count&quot;</span>))
+resourceCount.show(<span class="hljs-number">1</span>,<span class="hljs-literal">false</span>)
+</code></pre>
+<pre><code>+---------------------------+------+
+|resource                   |count |
++---------------------------+------+
+|/images/NASA-logosmall.gif |208362|
++---------------------------+------+
+</code></pre>
+<ul>
+<li>¿Qué días la web recibió más tráfico?</li>
+</ul>
+<p>Como todos son del mismo mes, solo comparamos días:</p>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> dayCount = dfWithDay.select($<span class="hljs-string">&quot;day&quot;</span>,$<span class="hljs-string">&quot;monthNumber&quot;</span>.alias(<span class="hljs-string">&quot;month&quot;</span>)).groupBy(<span class="hljs-string">&quot;day&quot;</span>,<span class="hljs-string">&quot;month&quot;</span>).agg(count(<span class="hljs-string">&quot;*&quot;</span>).alias(<span class="hljs-string">&quot;count&quot;</span>)).orderBy(desc(<span class="hljs-string">&quot;count&quot;</span>))
+dayCount.show()
+</code></pre>
+<pre><code>+---+-----+------+
+|day|month| count|
++---+-----+------+
+| 13|    7|134134|
+| 06|    7|100836|
+| 05|    7| 94446|
+| 12|    7| 92398|
+| 31|    8| 90035|
+| 03|    7| 89508|
+| 07|    7| 87140|
+| 14|    7| 83944|
+| 30|    8| 80554|
+| 11|    7| 80328|
+| 17|    7| 74876|
+| 10|    7| 72730|
+| 19|    7| 72599|
+| 04|    7| 70369|
+| 29|    8| 67859|
+| 20|    7| 66489|
+| 01|    7| 64557|
+| 21|    7| 64499|
+| 24|    7| 64150|
+| 18|    7| 64100|
++---+-----+------+
+</code></pre>
+<ul>
+<li>¿Cuáles son los hosts más frecuentes?</li>
+</ul>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> hostCount = df.select(<span class="hljs-string">&quot;host&quot;</span>).groupBy(<span class="hljs-string">&quot;host&quot;</span>).agg(count(<span class="hljs-string">&quot;*&quot;</span>).alias(<span class="hljs-string">&quot;count&quot;</span>)).orderBy(desc(<span class="hljs-string">&quot;count&quot;</span>))
+hostCount.show()
+</code></pre>
+<pre><code>+--------------------+-----+
+|                host|count|
++--------------------+-----+
+|piweba3y.prodigy.com|21988|
+|piweba4y.prodigy.com|16437|
+|piweba1y.prodigy.com|12825|
+|  edams.ksc.nasa.gov|11962|
+|        163.206.89.4| 9697|
+|         news.ti.com| 8161|
+|www-d1.proxy.aol.com| 8047|
+|  alyssa.prodigy.com| 8037|
+| siltb10.orl.mmc.com| 7573|
+|www-a2.proxy.aol.com| 7516|
+|www-b2.proxy.aol.com| 7266|
+|piweba2y.prodigy.com| 7246|
+|www-b3.proxy.aol.com| 7218|
+|www-d4.proxy.aol.com| 7211|
+|www-b5.proxy.aol.com| 7080|
+|www-d2.proxy.aol.com| 6984|
+|www-b4.proxy.aol.com| 6972|
+|www-d3.proxy.aol.com| 6895|
+|    webgate1.mot.com| 6749|
+|  e659229.boeing.com| 6720|
++--------------------+-----+
+</code></pre>
+<ul>
+<li>¿A qué horas se produce el mayor número de tráfico en la web?</li>
+</ul>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> hourCount = df.select(regexp_extract($<span class="hljs-string">&quot;date&quot;</span>, <span class="hljs-string">&quot;^\\d{2}/\\w{3}/\\d{4}:(\\d{2}):\\d{2}:\\d{2}&quot;</span>, <span class="hljs-number">1</span>).alias(<span class="hljs-string">&quot;hour&quot;</span>)).groupBy(<span class="hljs-string">&quot;hour&quot;</span>).agg(count(<span class="hljs-string">&quot;*&quot;</span>).alias(<span class="hljs-string">&quot;count&quot;</span>)).orderBy(desc(<span class="hljs-string">&quot;count&quot;</span>))
+hourCount.show(<span class="hljs-number">1</span>)
+</code></pre>
+<pre><code>+----+------+
+|hour| count|
++----+------+
+|  15|230373|
++----+------+
+</code></pre>
+<ul>
+<li>¿Cuál es el número de errores 404 que ha habido cada día?</li>
+</ul>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> day404Count = dfWithDay.select($<span class="hljs-string">&quot;day&quot;</span>,$<span class="hljs-string">&quot;monthNumber&quot;</span>.alias(<span class="hljs-string">&quot;month&quot;</span>)).filter(<span class="hljs-string">&quot;status = 404&quot;</span>).groupBy(<span class="hljs-string">&quot;day&quot;</span>,<span class="hljs-string">&quot;month&quot;</span>).agg(count(<span class="hljs-string">&quot;*&quot;</span>).alias(<span class="hljs-string">&quot;count&quot;</span>)).orderBy(desc(<span class="hljs-string">&quot;count&quot;</span>))
+day404Count.show(<span class="hljs-number">62</span>)
+</code></pre>
+<pre><code class="language-df">+---+-----+-----+
+|day|month|count|
++---+-----+-----+
+| 19|    7|  636|
+| 06|    7|  633|
+| 07|    7|  568|
+| 30|    8|  568|
+| 13|    7|  531|
+| 07|    8|  526|
+| 31|    8|  525|
+| 05|    7|  492|
+| 03|    7|  473|
+| 11|    7|  470|
+| 12|    7|  466|
+| 18|    7|  465|
+| 25|    7|  459|
+| 20|    7|  427|
+| 24|    8|  419|
+| 25|    8|  414|
+| 29|    8|  411|
+| 14|    7|  408|
+| 28|    8|  406|
+| 17|    7|  404|
+| 10|    7|  392|
+| 08|    8|  386|
+| 06|    8|  371|
+| 27|    8|  370|
+| 26|    8|  362|
+| 04|    7|  355|
+| 04|    8|  343|
+| 09|    7|  342|
+| 23|    8|  338|
+| 27|    7|  333|
+| 21|    7|  332|
+| 26|    7|  324|
+| 24|    7|  324|
+| 15|    8|  322|
+| 01|    7|  315|
+| 10|    8|  312|
+| 20|    8|  312|
+| 21|    8|  303|
+| 08|    7|  302|
+| 03|    8|  300|
+| 02|    7|  291|
+| 22|    8|  284|
+| 14|    8|  283|
+| 09|    8|  277|
+| 17|    8|  267|
+| 11|    8|  260|
+| 16|    8|  257|
+| 16|    7|  256|
+| 15|    7|  253|
+| 18|    8|  247|
+| 01|    8|  242|
+| 05|    8|  232|
+| 23|    7|  230|
+| 13|    8|  214|
+| 19|    8|  203|
+| 12|    8|  191|
+| 22|    7|  181|
+| 28|    7|   93|
++---+-----+-----+
+</code></pre>
+
+        <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+        
+    </body>
+    </html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>&lt;img src&equals;&quot;Apache&lowbar;Hive&lowbar;logo&period;svg&quot; alt&equals;&quot;Hive Logo&quot; width&equals;&quot;30&quot;&sol;&gt; HIVE</title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+/* From extension ms-toolsai.jupyter */
+/* These classnames are inherited from bootstrap, but are present in most notebook renderers */
+
+.alert {
+    width: auto;
+    padding: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.alert > *:last-child {
+    margin-bottom: 0;
+}
+#preview > .alert:last-child {
+    /* Prevent this being set to zero by the default notebook stylesheet */
+    padding-bottom: 1em;
+}
+
+.alert-success {
+    /* Note there is no suitable color available, so we just copy "info" */
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-info {
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-warning {
+    background-color: var(--theme-warning-background);
+    color: var(--theme-warning-foreground);
+}
+.alert-danger {
+    background-color: var(--theme-error-background);
+    color: var(--theme-error-foreground);
+}
+
+</style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="-hive"><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\ejercicios hive\Apache_Hive_logo.svg" alt="Hive Logo" width="30"/> HIVE</h1>
+<ul>
+<li><a href="#-hive"> HIVE</a>
+<ul>
+<li><a href="#preguntas">Preguntas</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="preguntas">Preguntas</h2>
+<p><strong>1. Cita algunas razones por las que no reemplazarías una RDBM por Hive</strong></p>
+<p>Una RDBM será más efectiva para conjuntos de datos más pequeños o menos complicados, sobretodo con un menor número de columnas. Si queremos más velocidad, las queries en Hive pueden ser de alta latencia debido a su procesamiento en lotes a través de Hadoop.</p>
+<p>Otra razón por la que elegir una RDBM podría ser la necesidad de procesar datos en tiempo real, es decir, la necesidad de insertar, actualizar o eliminar filas constantemente.</p>
+<p><strong>2. Cuáles son los beneficios de Hive y Hadoop sobre DWH tradicionales</strong></p>
+<p>Gracias a trabajar en HDFS, permite el manejo de datos mucho más complejos y sobredimensionados, escalables tanto en número de filas como de columnas. Nos da la oportunidad de trabajar con grandes volúmenes de datos gracias a MapReduce (en los que hacer análisis rápido no es viable). MapReduce nos ofrece una estructura escalable, efectiva en términos de coste, flexible y segura.</p>
+<p><strong>3. Qué datos almacena el metastore de Hive</strong></p>
+<p>Almacena y hace un seguimiento de metadatos, las tablas y sus tipos (en una base de datos específica).</p>
+<p><strong>4. Cuando hacemos una consulta en Hive sobre una tabla, dónde reside físicamente esa tabla</strong></p>
+<p>Las tablas de Hive residen en <code>/user/hive/warehouse/directory</code> en HDFS y sus implicaciones.</p>
+<p><strong>5. Qué comando se usa para cambiar el foco a otra tabla en hive</strong></p>
+<p>[duda] &gt;USE???</p>
+<p><strong>6. Cuál es el comando usado para combinar el resultado de varias queries en un solo resultado</strong></p>
+<pre><code class="language-sql"><span class="hljs-keyword">UNION</span> <span class="hljs-keyword">ALL</span>
+</code></pre>
+<p><strong>7. Cuál es el directorio por defecto del warehouse de Hive</strong></p>
+<p><code>/user/hive/warehouse</code></p>
+<p><strong>8. Dónde se almacenan las tablas particionadas en Hive</strong></p>
+<p>En distintos subdirectorios</p>
+<p><strong>9.  Cuál es la diferencia entre el tipo de datos SequenceFile y Parquet</strong></p>
+<p>SequenceFile almacena los datos en filas y Parquet en columnas, lo que permite un análisis de subconjuntos más sencillo</p>
+<p><strong>10. Cuál es la diferencia entre Arrays y Maps</strong></p>
+<p>La diferencia es que el map tiene asociado una key o nombre, lo cual permite llamar específicamente a un dato en concreto, mientras que array lo que permite es únicamente tenerlos ordenados.</p>
+<p><strong>11. Cuál es la query más rápida en Hive</strong></p>
+<p>[duda] show table porque solo accede a metadatos</p>
+<h2 id="ejercicios">Ejercicios</h2>
+<p><strong>1. Entrar a Hive</strong>
+<strong>2. Modificar la propiedad correspondiente para mostrar por pantalla las cabeceras de las tablas</strong></p>
+<p><code>set hive.cli.print.header=true</code></p>
+<p><strong>3. Crear una base de datos llamada “cursohivedb”</strong></p>
+<p><code>CREATE DATABASE cursohivedb;</code></p>
+<p><strong>4. Situarnos en la base de datos recién creada para trabajar con ella</strong></p>
+<p><code>USE cursohivedb;</code></p>
+<p><strong>5. Comprobar que la base de datos está vacía</strong></p>
+<p><code>SHOW TABLES;</code></p>
+<p><strong>6. Crear una tabla llamada “iris” en nuestra base de datos que contenga 5 columnas (s_length float,s_width float,p_length float,p_width float,clase string) cuyos campos estén separados por comas (ROW FORMAT DELIMITED FIELDS TERMINATED BY ',')</strong></p>
+<pre><code class="language-bash">CREATE TABLE iris(
+    &gt; s_length <span class="hljs-built_in">float</span>,
+    &gt; s_width <span class="hljs-built_in">float</span>,
+    &gt; p_length <span class="hljs-built_in">float</span>,
+    &gt; p_width <span class="hljs-built_in">float</span>,
+    &gt; clase string
+    &gt; )
+    &gt; ROW FORMAT DELIMITED FIELDS TERMINATED BY <span class="hljs-string">&#x27;,&#x27;</span>;
+</code></pre>
+<p><strong>7. Comprobar que la tabla se ha creado y el tipado de sus columnas</strong></p>
+<p><code>DESCRIBE iris</code></p>
+<p><strong>8. Importar el fichero “iris_completo.txt” al local file system del cluster en la carpeta /home/cloudera/ejercicios/ejercicios_HIVE</strong></p>
+<p><strong>9. Copiar el fichero a HDFS en la ruta /user/cloudera/hive. Reailzar las acciones necesarias</strong></p>
+<pre><code class="language-shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">hadoop fs -<span class="hljs-built_in">mkdir</span> /user/cloudera/hive</span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">hadoop fs -put /home/cloudera/ejercicios/ejercicios_HIVE/iris_completo.txt /user/cloudera/hive</span>
+</code></pre>
+<p><strong>10. Comprueba que el fichero está en la ruta en HDFS indicada</strong></p>
+<pre><code class="language-shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">hadoop fs -<span class="hljs-built_in">ls</span> /user/cloudera/hive</span>
+</code></pre>
+<p><strong>11. Importa el fichero en la tabla iris que acabamos de crear desde HDFS</strong></p>
+<pre><code>$ hive
+USE cursohivedb;
+LOAD DATA INPATH '/user/cloudera/hive/iris_completo.txt'
+INTO TABLE iris;
+</code></pre>
+<p><strong>12. Comprobar que la table tiene datos</strong></p>
+<pre><code>SELECT *
+FROM iris
+LIMIT 10;
+</code></pre>
+<p><strong>13. Mostrar las 5 primeras filas de la tabla iris</strong></p>
+<pre><code>SELECT *
+FROM iris
+LIMIT 5;
+</code></pre>
+<p><strong>14. Mostrar solo aquellas filas cuyo s_length sea mayor que 5. Observad que se ejecuta un MapReduce y que el tiempo de ejecución es un poco mayor</strong></p>
+<pre><code>SELECT *
+FROM iris
+WHERE s_length &gt; 5;
+</code></pre>
+<p><strong>15. Seleccionar la media de s_width agrupados por clase. Observad que ahora el tiempo de ejecución aumenta considerablemente.</strong></p>
+<pre><code>SELECT clase, avg(s_width)
+    &gt; FROM iris
+    &gt; GROUP BY clase;
+</code></pre>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\ejercicios hive\image1.png" alt="captura1"></p>
+<p><strong>16. Pregunta: vemos que aparece un valor NULL como resultado en la query anterior. ¿Por qué? ¿cómo los eliminarías?</strong></p>
+<blockquote>
+<p>Porque cuenta el caso de que la clase sea NULL, y como en este caso no hay ninguna entrada, la media de valores respuesta es NULL también. Lo eliminaría con alguna condición del estilo IF NOT NULL.</p>
+</blockquote>
+<pre><code>SELECT clase, avg(s_width)
+    &gt; FROM iris
+    &gt; WHERE clase != NULL
+    &gt; GROUP BY clase;
+</code></pre>
+<p><strong>17. Insertar en la tabla la siguiente fila (1.0,3.2,4.3,5.7,&quot;Iris-virginica&quot;)</strong></p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\ejercicios hive\image2.png" alt="captura2"></p>
+<p><strong>18. Contar el número de ocurrencias de cada clase</strong></p>
+<pre><code>SELECT clase, count(clase)
+    &gt; FROM iris
+    &gt; GROUP BY clase;
+</code></pre>
+<p><strong>19. Seleccionar las clases que tengan más de 45 ocurrencias</strong></p>
+<pre><code>SELECT clase
+    &gt; FROM iris
+    &gt; GROUP BY clase
+    &gt; HAVING count(*) &gt; 45;
+</code></pre>
+<p><strong>20. Utilizando la función LEAD, ejecutar una query que devuelva la clase, p_length y el LEAD de p_length con Offset=1 y Default_Value =0, particionado por clase y ordenado por p_length.</strong></p>
+<pre><code>SELECT clase, p_length, 
+LEAD(p_length,1,0) OVER (PARTITION BY clase ORDER BY p_length)
+FROM iris
+</code></pre>
+<p><strong>21. Utilizando funciones de ventanas, seleccionar la clase, p_length, s_length, p_width, el número de valores distintos de p_length en todo el dataset, el valor máximo de s_length por clase y la media de p_width por clase, ordenado por clase y s_length de manera descendente.</strong></p>
+<pre><code>SELECT clase, p_length, s_length, p_width,
+COUNT(p_length) OVER (PARTITION BY p_length), 
+MAX(s_length) OVER (PARTITION BY clase),
+AVG(p_width) OVER (PARTITION BY clase)
+FROM iris
+ORDER BY clase, s_length DESC;
+</code></pre>
+
+        <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+        
+    </body>
+    </html>
