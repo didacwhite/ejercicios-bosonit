@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Pr&aacute;ctica Hive &plus; Impala &plus; HDFS &plus; Spark</title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+/* From extension ms-toolsai.jupyter */
+/* These classnames are inherited from bootstrap, but are present in most notebook renderers */
+
+.alert {
+    width: auto;
+    padding: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.alert > *:last-child {
+    margin-bottom: 0;
+}
+#preview > .alert:last-child {
+    /* Prevent this being set to zero by the default notebook stylesheet */
+    padding-bottom: 1em;
+}
+
+.alert-success {
+    /* Note there is no suitable color available, so we just copy "info" */
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-info {
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-warning {
+    background-color: var(--theme-warning-background);
+    color: var(--theme-warning-foreground);
+}
+.alert-danger {
+    background-color: var(--theme-error-background);
+    color: var(--theme-error-foreground);
+}
+
+</style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="práctica-hive--impala--hdfs--spark">Práctica Hive + Impala + HDFS + Spark</h1>
+<ul>
+<li><a href="#pr%C3%A1ctica-hive--impala--hdfs--spark">Práctica Hive + Impala + HDFS + Spark</a>
+<ul>
+<li><a href="#1---creaci%C3%B3n-de-tablas-en-formato-texto">1 - Creación de tablas en formato texto.</a></li>
+<li><a href="#2---investigamos-el-formato-columnar-parquet">2 - Investigamos el formato columnar parquet.</a></li>
+<li><a href="#3---juguemos-con-impala">3 - Juguemos con Impala</a></li>
+<li><a href="#4---sobre-tablas-particionadas">4 - Sobre tablas particionadas</a></li>
+<li><a href="#5-trabajando-con-tablas-en-hdfs">5. Trabajando con tablas en HDFS</a></li>
+<li><a href="#6-un-poquito-de-spark">6. Un poquito de Spark</a></li>
+<li><a href="#y-si-juntamos-spark-y-hive">¿Y si juntamos Spark y Hive?</a></li>
+</ul>
+</li>
+</ul>
+<p>A partir de los datos (CSV) de Padrón de Madrid (<a href="https://datos.madrid.es/egob/catalogo/200076-1-padron.csv">https://datos.madrid.es/egob/catalogo/200076-1-padron.csv</a>) llevar a cabo lo siguiente:</p>
+<h2 id="1---creación-de-tablas-en-formato-texto">1 - Creación de tablas en formato texto.</h2>
+<ol>
+<li>
+<p>Crear Base de datos &quot;datos_padron&quot;</p>
+<pre><code>CREATE DATABASE padron;
+</code></pre>
+</li>
+<li>
+<p>Crear la tabla de datos padron_txt con todos los campos del fichero CSV y cargar los datos mediante el comando LOAD DATA LOCAL INPATH. La tabla tendrá formato texto y tendrá como delimitador de campo el caracter ';' y los campos que en el documento original están encerrados en comillas dobles '&quot;' no deben estar envueltos en estos caracteres en la tabla de Hive (es importante indicar esto utilizando el serde de OpenCSV, si no la importación de las variables que hemos indicado como numéricas fracasará ya que al estar envueltos en comillas los toma como strings) y se deberá omitir la cabecera del fichero de datos al crear la tabla.</p>
+<pre><code class="language-sql"><span class="hljs-keyword">set</span> hive.serdes.using.metastore.for.schema<span class="hljs-operator">=</span>org.apache.hadoop.hive.serde2.OpenCSVSerde; <span class="hljs-comment">--permite la lectura correcta con el formato de cada columna, sin este comando se convierte todo en string</span>
+
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> padron_txt(
+    COD_DISTRITO      <span class="hljs-type">INT</span>,
+    DESC_DISTRITO     STRING,
+    COD_DIST_BARRIO   <span class="hljs-type">INT</span>,
+    DESC_BARRIO       STRING,
+    COD_BARRIO        <span class="hljs-type">INT</span>,
+    COD_DIST_SECCION  <span class="hljs-type">INT</span>,
+    COD_SECCION       <span class="hljs-type">INT</span>,
+    COD_EDAD_INT      <span class="hljs-type">INT</span>,
+    ESPANOLESHOMBRES  <span class="hljs-type">INT</span>,
+    ESPANOLESMUJERES  <span class="hljs-type">INT</span>,
+    EXTRANJEROSHOMBRES <span class="hljs-type">INT</span>,
+    EXTRANJEROSMUJERES <span class="hljs-type">INT</span>,
+    FX_CARGA          STRING,
+    FX_DATOS_INI      STRING,
+    FX_DATOS_FIN      STRING
+)
+<span class="hljs-type">ROW</span> FORMAT SERDE <span class="hljs-string">&#x27;org.apache.hadoop.hive.serde2.OpenCSVSerde&#x27;</span>
+<span class="hljs-keyword">WITH</span> SERDEPROPERTIES (
+&quot;separatorChar&quot; <span class="hljs-operator">=</span> &quot;\073&quot;,
+&quot;quoteChar&quot;     <span class="hljs-operator">=</span> &quot;\&quot;&quot;,
+&quot;skip.header.line.count&quot; = &quot;<span class="hljs-number">1</span>&quot;
+)
+STORED AS TEXTFILE;
+
+LOAD DATA LOCAL INPATH &#x27;/home/cloudera/ejercicios/padron/estadisticas202212.csv&#x27;
+INTO TABLE padron_txt;
+</code></pre>
+<pre><code class="language-SQL"><span class="hljs-keyword">DESCRIBE</span> padron_txt;
+<span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> padron_txt LIMIT <span class="hljs-number">5</span>;
+</code></pre>
+</li>
+<li>
+<p>Hacer trim sobre los datos para eliminar los espacios innecesarios guardando la tabla resultado como padron_txt_2. (Este apartado se puede hacer creando la tabla con una sentencia CTAS.)</p>
+<pre><code class="language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> padron_txt_2 <span class="hljs-keyword">AS</span>
+<span class="hljs-keyword">SELECT</span>
+COD_DISTRITO <span class="hljs-keyword">AS</span> COD_DISTRITO,
+<span class="hljs-built_in">TRIM</span>(DESC_DISTRITO) <span class="hljs-keyword">AS</span> DESC_DISTRITO,
+COD_DIST_BARRIO <span class="hljs-keyword">AS</span> COD_DIST_BARRIO,
+<span class="hljs-built_in">TRIM</span>(DESC_BARRIO) <span class="hljs-keyword">AS</span> DESC_BARRIO,
+COD_BARRIO <span class="hljs-keyword">AS</span> COD_BARRIO,
+COD_DIST_SECCION <span class="hljs-keyword">AS</span> COD_DIST_SECCION,
+COD_SECCION <span class="hljs-keyword">AS</span> COD_SECCION,
+COD_EDAD_INT <span class="hljs-keyword">AS</span> COD_EDAD_INT,
+ESPANOLESHOMBRES <span class="hljs-keyword">AS</span> ESPANOLESHOMBRES,
+ESPANOLESMUJERES <span class="hljs-keyword">AS</span> ESPANOLESMUJERES,
+EXTRANJEROSHOMBRES <span class="hljs-keyword">AS</span> EXTRANJEROSHOMBRES,
+EXTRANJEROSMUJERES <span class="hljs-keyword">AS</span> EXTRANJEROSMUJERES,
+<span class="hljs-built_in">TRIM</span>(FX_CARGA) <span class="hljs-keyword">AS</span> FX_CARGA,
+<span class="hljs-built_in">TRIM</span>(FX_DATOS_INI) <span class="hljs-keyword">AS</span> FX_DATOS_INI,
+<span class="hljs-built_in">TRIM</span>(FX_DATOS_FIN) <span class="hljs-keyword">AS</span> FX_DATOS_FIN
+<span class="hljs-keyword">FROM</span> padron_txt;
+</code></pre>
+<pre><code class="language-SQL"><span class="hljs-keyword">DESCRIBE</span> padron_txt_2;
+</code></pre>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\descpad2.png" alt="descpad2"></p>
+<pre><code class="language-sql"><span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> padron_txt_2 CHANGE COD_DISTRITO COD_DISTRITO <span class="hljs-type">INT</span>;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> padron_txt_2 CHANGE COD_DIST_BARRIO COD_DIST_BARRIO <span class="hljs-type">INT</span>;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> padron_txt_2 CHANGE COD_BARRIO COD_BARRIO <span class="hljs-type">INT</span>;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> padron_txt_2 CHANGE COD_DIST_SECCION COD_DIST_SECCION <span class="hljs-type">INT</span>;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> padron_txt_2 CHANGE COD_SECCION COD_SECCION <span class="hljs-type">INT</span>;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> padron_txt_2 CHANGE COD_EDAD_INT COD_EDAD_INT <span class="hljs-type">INT</span>;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> padron_txt_2 CHANGE ESPANOLESHOMBRES ESPANOLESHOMBRES <span class="hljs-type">INT</span>;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> padron_txt_2 CHANGE ESPANOLESMUJERES ESPANOLESMUJERES <span class="hljs-type">INT</span>;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> padron_txt_2 CHANGE EXTRANJEROSHOMBRES EXTRANJEROSHOMBRES <span class="hljs-type">INT</span>;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> padron_txt_2 CHANGE EXTRANJEROSMUJERES EXTRANJEROSMUJERES <span class="hljs-type">INT</span>;
+</code></pre>
+<pre><code class="language-SQL"><span class="hljs-keyword">DESCRIBE</span> padron_txt_2;
+</code></pre>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\despad2OK.png" alt="descpad2OK"></p>
+</li>
+<li>
+<p>Investigar y entender la diferencia de incluir la palabra LOCAL en el comando LOAD DATA.</p>
+<blockquote>
+<p>Si utilizamos la opción 'local' en 'load data', estamos especificando la lectura en el sistema de archivos utilizado en la máquina donde se ejecuta Hive. Si no incluyes 'local', Hive asume que los datos se encuentran en HDFS y tratará de cargarlos desde allí.</p>
+</blockquote>
+</li>
+<li>
+<p>En este momento te habrás dado cuenta de un aspecto importante, los datos nulos de nuestras tablas vienen representados por un espacio vacío y no por un identificador de nulos comprensible para la tabla. Esto puede ser un problema para el tratamiento posterior de los datos. Podrías solucionar esto creando una nueva tabla utilizando sentencias case when que sustituyan espacios en blanco por 0. Para esto primero comprobaremos que solo hay espacios en blanco en las variables numéricas correspondientes a las últimas 4 variables de nuestra tabla (podemos hacerlo con alguna sentencia de HiveQL) y luego aplicaremos las sentencias case when para sustituir por 0 los espacios en blanco. (Pista: es útil darse cuenta de que un espacio vacío es un campo con longitud 0). Haz esto solo para la tabla padron_txt.</p>
+<blockquote>
+<p>No he podido editar la tabla existente así que he creado padron_txt_3</p>
+</blockquote>
+<pre><code class="language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> padron_txt_3 <span class="hljs-keyword">AS</span>
+<span class="hljs-keyword">SELECT</span>
+COD_DISTRITO,
+DESC_DISTRITO,
+COD_DIST_BARRIO,
+DESC_BARRIO,
+COD_BARRIO,
+COD_DIST_SECCION,
+COD_SECCION,
+COD_EDAD_INT,
+<span class="hljs-keyword">CASE</span> <span class="hljs-keyword">WHEN</span> ESPANOLESHOMBRES <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">THEN</span> <span class="hljs-number">0</span> <span class="hljs-keyword">ELSE</span> ESPANOLESHOMBRES <span class="hljs-keyword">END</span> <span class="hljs-keyword">AS</span> ESPANOLESHOMBRES,
+<span class="hljs-keyword">CASE</span> <span class="hljs-keyword">WHEN</span> ESPANOLESMUJERES <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">THEN</span> <span class="hljs-number">0</span> <span class="hljs-keyword">ELSE</span> ESPANOLESMUJERES <span class="hljs-keyword">END</span> <span class="hljs-keyword">AS</span> ESPANOLESMUJERES,
+<span class="hljs-keyword">CASE</span> <span class="hljs-keyword">WHEN</span> EXTRANJEROSHOMBRES <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">THEN</span> <span class="hljs-number">0</span> <span class="hljs-keyword">ELSE</span> EXTRANJEROSHOMBRES <span class="hljs-keyword">END</span> <span class="hljs-keyword">AS</span> EXTRANJEROSHOMBRES,
+<span class="hljs-keyword">CASE</span> <span class="hljs-keyword">WHEN</span> EXTRANJEROSMUJERES <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-keyword">THEN</span> <span class="hljs-number">0</span> <span class="hljs-keyword">ELSE</span> EXTRANJEROSMUJERES <span class="hljs-keyword">END</span> <span class="hljs-keyword">AS</span> EXTRANJEROSMUJERES
+<span class="hljs-keyword">FROM</span> padron_txt;
+</code></pre>
+<pre><code>ALTER TABLE padron_txt_3 CHANGE COD_DISTRITO COD_DISTRITO INT;
+ALTER TABLE padron_txt_3 CHANGE COD_DIST_BARRIO COD_DIST_BARRIO INT;
+ALTER TABLE padron_txt_3 CHANGE COD_BARRIO COD_BARRIO INT;
+ALTER TABLE padron_txt_3 CHANGE COD_DIST_SECCION COD_DIST_SECCION INT;
+ALTER TABLE padron_txt_3 CHANGE COD_SECCION COD_SECCION INT;
+ALTER TABLE padron_txt_3 CHANGE COD_EDAD_INT COD_EDAD_INT INT;
+ALTER TABLE padron_txt_3 CHANGE ESPANOLESHOMBRES ESPANOLESHOMBRES INT;
+ALTER TABLE padron_txt_3 CHANGE ESPANOLESMUJERES ESPANOLESMUJERES INT;
+ALTER TABLE padron_txt_3 CHANGE EXTRANJEROSHOMBRES EXTRANJEROSHOMBRES INT;
+ALTER TABLE padron_txt_3 CHANGE EXTRANJEROSMUJERES EXTRANJEROSMUJERES INT;
+</code></pre>
+</li>
+<li>
+<p>Una manera tremendamente potente de solucionar todos los problemas previos (tanto las comillas como los campos vacíos que no son catalogados como null y los espacios innecesarios) es utilizar expresiones regulares (regex) que nos proporciona OpenCSV. Para ello utilizamos: ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.RegexSerDe' WITH SERDEPROPERTIES ('input.regex'='XXXXXXX') Donde XXXXXX representa una expresión regular que debes completar y que identifique el formato exacto con el que debemos interpretar cada una de las filas de nuestro CSV de entrada. Para ello puede ser útil el portal &quot;regex101&quot;. Utiliza este método para crear de nuevo la tabla padron_txt_2.</p>
+<pre><code class="language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> padron_regex(
+COD_DISTRITO      <span class="hljs-type">INT</span>,
+DESC_DISTRITO     STRING,
+COD_DIST_BARRIO   <span class="hljs-type">INT</span>,
+DESC_BARRIO       STRING,
+COD_BARRIO        <span class="hljs-type">INT</span>,
+COD_DIST_SECCION  <span class="hljs-type">INT</span>,
+COD_SECCION       <span class="hljs-type">INT</span>,
+COD_EDAD_INT      <span class="hljs-type">INT</span>,
+ESPANOLESHOMBRES  <span class="hljs-type">INT</span>,
+ESPANOLESMUJERES  <span class="hljs-type">INT</span>,
+EXTRANJEROSHOMBRES <span class="hljs-type">INT</span>,
+EXTRANJEROSMUJERES <span class="hljs-type">INT</span>,
+FX_CARGA          STRING,
+FX_DATOS_INI      STRING,
+FX_DATOS_FIN      STRING
+)
+<span class="hljs-type">ROW</span> FORMAT SERDE <span class="hljs-string">&#x27;org.apache.hadoop.hive.serde2.RegexSerDe&#x27;</span>
+<span class="hljs-keyword">WITH</span> SERDEPROPERTIES(<span class="hljs-string">&#x27;input.regex&#x27;</span><span class="hljs-operator">=</span><span class="hljs-string">&#x27;^(\\d+)\\\;\\\&quot;([A-Za-z]+)\\s*\\\&quot;\\\;(\\d+)\\\;\\\&quot;([A-Za-z]+)\\s*\\\&quot;\\\;(\\d+)\\\;(\\d+)\\\;(\\d+)\\\;\\\&quot;(\\d+)\\\&quot;\\\;(\\d*)\\\;(\\d*)\\\;(\\d*)\\\;(\\d*)\\\;\\\&quot;(\\d*-\\d*-\\d*\\s\\d*:\\d*:\\d*\\d*\\.\\d*)\\&quot;\\;\\&quot;(\\d*-\\d*-\\d*)\\\&quot;\\\;\\\&quot;(\\d*-\\d*-\\d*)\\\&quot;$&#x27;</span>, &quot;skip.header.line.count&quot; <span class="hljs-operator">=</span> &quot;1&quot;);
+
+LOAD DATA <span class="hljs-keyword">LOCAL</span> INPATH <span class="hljs-string">&#x27;/home/cloudera/ejercicios/padron/estadisticas202212.csv&#x27;</span>
+<span class="hljs-keyword">INTO</span> <span class="hljs-keyword">TABLE</span> padron_regex;
+</code></pre>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\regex.png" alt="regex"></p>
+</li>
+</ol>
+<p>Una vez finalizados todos estos apartados deberíamos tener una tabla padron_txt que conserve los espacios innecesarios, no tenga comillas envolviendo los campos y los campos nulos sean tratados como valor 0 y otra tabla padron_txt_2 sin espacios innecesarios, sin comillas envolviendo los campos y con los campos nulos como valor 0. Idealmente esta tabla ha sido creada con las regex de OpenCSV.</p>
+<h2 id="2---investigamos-el-formato-columnar-parquet">2 - Investigamos el formato columnar parquet.</h2>
+<ol>
+<li>
+<p>¿Qué es CTAS?</p>
+<blockquote>
+<p>CTAS (CREATE TABLE AS SELECT): es una consulta SQL que permite crear una nueva tabla en una base de datos a partir de los datos de otra tabla existente.</p>
+</blockquote>
+</li>
+<li>
+<p>Crear tabla Hive padron_parquet (cuyos datos serán almacenados en el formato columnar parquet) a través de la tabla padron_txt mediante un CTAS.</p>
+<pre><code class="language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> padron_parquet
+STORED <span class="hljs-keyword">AS</span> PARQUET
+<span class="hljs-keyword">AS</span> <span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> padron_txt;
+</code></pre>
+</li>
+<li>
+<p>Crear tabla Hive padron_parquet_2 a través de la tabla padron_txt_2 mediante un CTAS. En este punto deberíamos tener 4 tablas, 2 en txt (padron_txt y padron_txt_2, la primera con espacios innecesarios y la segunda sin espacios innecesarios) y otras dos tablas en formato parquet (padron_parquet y padron_parquet_2, la primera con espacios y la segunda sin ellos).</p>
+<pre><code class="language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> padron_parquet_2
+STORED <span class="hljs-keyword">AS</span> PARQUET
+<span class="hljs-keyword">AS</span> <span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> padron_txt_2;
+</code></pre>
+</li>
+<li>
+<p>Opcionalmente también se pueden crear las tablas directamente desde 0 (en lugar de mediante CTAS) en formato parquet igual que lo hicimos para el formato txt incluyendo la sentencia STORED AS PARQUET. Es importante para comparaciones posteriores que la tabla padron_parquet conserve los espacios innecesarios y la tabla padron_parquet_2 no los tenga. Dejo a tu elección cómo hacerlo.</p>
+</li>
+<li>
+<p>Investigar en qué consiste el formato columnar parquet y las ventajas de trabajar con este tipo de formatos.</p>
+<blockquote>
+<p>ventajas del formato columnar:</p>
+</blockquote>
+<ol>
+<li>eficiencia de almacenamiento: normalmente las columnas tienen el mismo formato y valores parecidos entre ellos</li>
+<li>mayor velocidad de lectura: en las querys estilo SQL, al trabajar con columnas para filtrar, ordenar, o simplemente leer datos, el formato columnar permite no tener que leer datos innecesarios como hariamos al guardar por filas</li>
+<li>mayor escalabilidad: formato escalable y compatible con entornos distribuidos</li>
+</ol>
+</li>
+<li>
+<p>Comparar el tamaño de los ficheros de los datos de las tablas padron_txt (txt), padron_txt_2 (txt pero no incluye los espacios innecesarios), padron_parquet y padron_parquet_2 (alojados en hdfs cuya ruta se puede obtener de la propiedad location de cada tabla por ejemplo haciendo &quot;show create table&quot;).</p>
+<blockquote>
+<p>los dos archivos correspondientes a la tabla parquet ocupan lo mismo: 1.2MB, mientras que la tabla sin procesar padron_txt ocupa 30MB, y la tabla procesada padron_txt_clean ocupa 12MB</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="3---juguemos-con-impala">3 - Juguemos con Impala</h2>
+<ol>
+<li>
+<p>¿Qué es Impala?</p>
+<blockquote>
+<p>Impala es una herramienta para ejecutar consultas SQL en grandes conjuntos de datos en sistemas Hadoop de manera rápida y escalable.</p>
+</blockquote>
+</li>
+<li>
+<p>¿En qué se diferencia de Hive?</p>
+<ol>
+<li>Hive se enfoca en consultas a gran escala con HiveQL, mientras que Impala se enfoca en consultas en tiempo real con SQL estándar.</li>
+<li>Hive tiene una arquitectura basada en mapreduce, mientras que Impala tiene una arquitectura basada en máquinas.</li>
+<li>Impala suele ser más rápido que Hive para consultas en tiempo real, pero Hive puede ser más adecuado para consultas a gran escala con procesamiento de mapreduce.</li>
+</ol>
+</li>
+<li>
+<p>Comando INVALIDATE METADATA, ¿en qué consiste?</p>
+<blockquote>
+<p>El comando INVALIDATE METADATA es un comando de Impala que se utiliza para informar al sistema de que los metadatos de una tabla o vista han cambiado y deben volver a leerse. Se puede especificar un nombre de tabla o vista para invalidar solo sus metadatos o no especificar ningún nombre para invalidar los metadatos de todas las tablas y vistas en la base de datos actual. Este comando no afecta a los datos de la tabla o vista, solo a sus metadatos, y no debe utilizarse con frecuencia para evitar impactar el rendimiento del sistema.</p>
+</blockquote>
+</li>
+<li>
+<p>Hacer invalidate metadata en Impala de la base de datos datos_padron.</p>
+<pre><code class="language-sql">impala<span class="hljs-operator">-</span>shell
+<span class="hljs-keyword">show</span> databases;
+use datos_padron;
+invalidate metadata;
+</code></pre>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\invalidate%20metadata.png" alt="invalidatemetadata"></p>
+</li>
+<li>
+<p>Calcular el total de EspanolesHombres, espanolesMujeres,ExtranjerosHombres y ExtranjerosMujeres agrupado por DESC_DISTRITO y DESC_BARRIO.</p>
+<pre><code class="language-sql"><span class="hljs-keyword">SELECT</span> desc_distrito, desc_barrio, <span class="hljs-built_in">sum</span>(<span class="hljs-built_in">cast</span>(EspanolesHombres <span class="hljs-keyword">AS</span> <span class="hljs-type">int</span>)) <span class="hljs-keyword">AS</span> EspanolesHombres, <span class="hljs-built_in">sum</span>(<span class="hljs-built_in">cast</span>(espanolesMujeres <span class="hljs-keyword">AS</span> <span class="hljs-type">int</span>)) <span class="hljs-keyword">AS</span> espanolesMujeres, <span class="hljs-built_in">sum</span>(<span class="hljs-built_in">cast</span>(ExtranjerosHombres <span class="hljs-keyword">AS</span> <span class="hljs-type">int</span>)) <span class="hljs-keyword">AS</span> ExtranjerosHombres, <span class="hljs-built_in">sum</span>(<span class="hljs-built_in">cast</span>(ExtranjerosMujeres <span class="hljs-keyword">AS</span> <span class="hljs-type">int</span>)) <span class="hljs-keyword">AS</span> ExtranjerosMujeres
+<span class="hljs-keyword">FROM</span> padron_txt_clean
+<span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> desc_distrito, desc_barrio;
+</code></pre>
+<pre><code class="language-sql"><span class="hljs-keyword">SELECT</span> desc_distrito, desc_barrio, <span class="hljs-built_in">sum</span>(<span class="hljs-built_in">cast</span>(EspanolesHombres <span class="hljs-keyword">AS</span> <span class="hljs-type">int</span>)) <span class="hljs-keyword">AS</span> EspanolesHombres, <span class="hljs-built_in">sum</span>(<span class="hljs-built_in">cast</span>(espanolesMujeres <span class="hljs-keyword">AS</span> <span class="hljs-type">int</span>)) <span class="hljs-keyword">AS</span> espanolesMujeres, <span class="hljs-built_in">sum</span>(<span class="hljs-built_in">cast</span>(ExtranjerosHombres <span class="hljs-keyword">AS</span> <span class="hljs-type">int</span>)) <span class="hljs-keyword">AS</span> ExtranjerosHombres, <span class="hljs-built_in">sum</span>(<span class="hljs-built_in">cast</span>(ExtranjerosMujeres <span class="hljs-keyword">AS</span> <span class="hljs-type">int</span>)) <span class="hljs-keyword">AS</span> ExtranjerosMujeres
+<span class="hljs-keyword">FROM</span> padron_parquet_clean
+<span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> desc_distrito, desc_barrio;
+</code></pre>
+</li>
+<li>
+<p>Llevar a cabo las consultas en Hive en las tablas padron_txt_2 y padron_parquet_2 (No deberían incluir espacios innecesarios). ¿Alguna conclusión?</p>
+<blockquote>
+<p>sobre la tabla en formato normal, hive tardó 38.2s, y con el formato parquet tardó 32.5s</p>
+</blockquote>
+</li>
+<li>
+<p>Llevar a cabo la misma consulta sobre las mismas tablas en Impala. ¿Alguna conclusión?</p>
+<blockquote>
+<p>sobre la tabla en formato normal, impala tardó 0.94s, y con el formato parquet tardó 0.71s</p>
+</blockquote>
+</li>
+<li>
+<p>¿Se percibe alguna diferencia de rendimiento entre Hive e Impala?</p>
+<blockquote>
+<p>la diferencia en tiempos de ejecución es clara</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="4---sobre-tablas-particionadas">4 - Sobre tablas particionadas</h2>
+<blockquote>
+<p>Para poder realizar los siguientes apartados, he tenido que editar el archivo csv con la función buscar y reemplazar, cambiando todas las 'ñ' por 'nh'.
+Para hacer una query en impala, no se puede hacer sobre una query creada con serdepropierties (sí con un CTAS sobre esta)</p>
+</blockquote>
+<ol>
+<li>
+<p>Crear tabla (Hive) padron_particionado particionada por campos DESC_DISTRITO y DESC_BARRIO cuyos datos estén en formato parquet.</p>
+<pre><code class="language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> padron_particionado (
+COD_DISTRITO <span class="hljs-type">INT</span>,
+COD_DIST_BARRIO <span class="hljs-type">INT</span>,
+COD_BARRIO <span class="hljs-type">INT</span>,
+COD_DIST_SECCION <span class="hljs-type">INT</span>,
+COD_SECCION <span class="hljs-type">INT</span>,
+COD_EDAD_INT <span class="hljs-type">INT</span>,
+ESPANOLESHOMBRES <span class="hljs-type">INT</span>,
+ESPANOLESMUJERES <span class="hljs-type">INT</span>,
+EXTRANJEROSHOMBRES <span class="hljs-type">INT</span>,
+EXTRANJEROSMUJERES <span class="hljs-type">INT</span>,
+FX_CARGA STRING,
+FX_DATOS_INI STRING,
+FX_DATOS_FIN STRING
+)
+PARTITIONED <span class="hljs-keyword">BY</span> (DESC_DISTRITO STRING, DESC_BARRIO STRING)
+STORED <span class="hljs-keyword">AS</span> PARQUET;
+</code></pre>
+</li>
+<li>
+<p>Insertar datos (en cada partición) dinámicamente (con Hive) en la tabla recién creada a partir de un select de la tabla padron_parquet_2.</p>
+<blockquote>
+<p>Para la sentencia INSERT OVERWRITE hace falta escribir esto antes en Hive</p>
+</blockquote>
+<pre><code class="language-sql"><span class="hljs-keyword">SET</span> hive.exec.dynamic.partition<span class="hljs-operator">=</span><span class="hljs-literal">true</span>;
+<span class="hljs-keyword">SET</span> hive.exec.dynamic.partition.mode<span class="hljs-operator">=</span>non<span class="hljs-operator">-</span>strict;
+<span class="hljs-keyword">SET</span> hive.enforce.bucketing <span class="hljs-operator">=</span><span class="hljs-literal">true</span>;​
+</code></pre>
+<pre><code class="language-sql"><span class="hljs-keyword">INSERT</span> OVERWRITE <span class="hljs-keyword">TABLE</span> padron_particionado <span class="hljs-keyword">PARTITION</span>(DESC_DISTRITO, DESC_BARRIO)
+<span class="hljs-keyword">SELECT</span> COD_DISTRITO, COD_DIST_BARRIO, COD_BARRIO, COD_DIST_SECCION, COD_SECCION, COD_EDAD_INT, ESPANOLESHOMBRES, ESPANOLESMUJERES, EXTRANJEROSHOMBRES, EXTRANJEROSMUJERES, FX_CARGA, FX_DATOS_INI, FX_DATOS_FIN, DESC_DISTRITO, DESC_BARRIO <span class="hljs-keyword">from</span> padron_parquet;
+</code></pre>
+</li>
+<li>
+<p>Hacer invalidate metadata en Impala de la base de datos padron_particionado.</p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\invmet%20particionado.png" alt="invalidateparticionado"></p>
+</li>
+<li>
+<p>Calcular el total de EspanolesHombres, EspanolesMujeres, ExtranjerosHombres y ExtranjerosMujeres agrupado por DESC_DISTRITO y DESC_BARRIO para los distritos CENTRO, LATINA, CHAMARTIN, TETUAN, VICALVARO y BARAJAS.</p>
+<pre><code class="language-sql"><span class="hljs-keyword">SELECT</span> DESC_DISTRITO, DESC_BARRIO,
+    <span class="hljs-built_in">SUM</span>(EspanolesHombres) <span class="hljs-keyword">AS</span> EspanolesHombres,
+    <span class="hljs-built_in">SUM</span>(EspanolesMujeres) <span class="hljs-keyword">AS</span> EspanolesMujeres,
+    <span class="hljs-built_in">SUM</span>(ExtranjerosHombres) <span class="hljs-keyword">AS</span> ExtranjerosHombres,
+    <span class="hljs-built_in">SUM</span>(ExtranjerosMujeres) <span class="hljs-keyword">AS</span> ExtranjerosMujeres
+<span class="hljs-keyword">FROM</span> padron_particionado
+<span class="hljs-keyword">WHERE</span> DESC_DISTRITO <span class="hljs-keyword">IN</span> (<span class="hljs-string">&#x27;CENTRO&#x27;</span>, <span class="hljs-string">&#x27;LATINA&#x27;</span>, <span class="hljs-string">&#x27;CHAMARTIN&#x27;</span>, <span class="hljs-string">&#x27;TETUAN&#x27;</span>, <span class="hljs-string">&#x27;VICALVARO&#x27;</span>, <span class="hljs-string">&#x27;BARAJAS&#x27;</span>)
+<span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> DESC_DISTRITO, DESC_BARRIO
+</code></pre>
+<pre><code class="language-sql"><span class="hljs-keyword">SELECT</span> DESC_DISTRITO, DESC_BARRIO,
+    <span class="hljs-built_in">SUM</span>(EspanolesHombres) <span class="hljs-keyword">AS</span> EspanolesHombres,
+    <span class="hljs-built_in">SUM</span>(EspanolesMujeres) <span class="hljs-keyword">AS</span> EspanolesMujeres,
+    <span class="hljs-built_in">SUM</span>(ExtranjerosHombres) <span class="hljs-keyword">AS</span> ExtranjerosHombres,
+    <span class="hljs-built_in">SUM</span>(ExtranjerosMujeres) <span class="hljs-keyword">AS</span> ExtranjerosMujeres
+<span class="hljs-keyword">FROM</span> padron_parquet
+<span class="hljs-keyword">WHERE</span> DESC_DISTRITO <span class="hljs-keyword">IN</span> (<span class="hljs-string">&#x27;CENTRO&#x27;</span>, <span class="hljs-string">&#x27;LATINA&#x27;</span>, <span class="hljs-string">&#x27;CHAMARTIN&#x27;</span>, <span class="hljs-string">&#x27;TETUAN&#x27;</span>, <span class="hljs-string">&#x27;VICALVARO&#x27;</span>, <span class="hljs-string">&#x27;BARAJAS&#x27;</span>)
+<span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> DESC_DISTRITO, DESC_BARRIO
+</code></pre>
+</li>
+<li>
+<p>Llevar a cabo la consulta en Hive en las tablas padron_parquet y padron_partitionado. ¿Alguna conclusión?</p>
+<blockquote>
+<p>tiempo de ejecución en padron_parquet: 28.716 seconds, en padron_particionado: 35.583 seconds. Lo cual parece raro, repitiendo particionado baja a 29.268 seconds.</p>
+</blockquote>
+</li>
+<li>
+<p>Llevar a cabo la consulta en Impala en las tablas padron_parquet y padron_particionado. ¿Alguna conclusión?</p>
+<blockquote>
+<p>tiempo de ejecución en padron_parquet: 0.32s, en padron_particionado: 0.60s.</p>
+</blockquote>
+</li>
+<li>
+<p>Hacer consultas de agregación (Max, Min, Avg, Count) tal cual el ejemplo anterior con las 3 tablas (padron_txt_2, padron_parquet_2 y padron_particionado) y comparar rendimientos tanto en Hive como en Impala y sacar conclusiones.</p>
+<pre><code class="language-sql"><span class="hljs-keyword">SELECT</span> DESC_DISTRITO, DESC_BARRIO,
+    <span class="hljs-built_in">max</span>(EspanolesHombres) <span class="hljs-keyword">AS</span> EspanolesHombres
+<span class="hljs-keyword">FROM</span> padron_particionado
+<span class="hljs-keyword">WHERE</span> DESC_DISTRITO <span class="hljs-keyword">IN</span> (<span class="hljs-string">&#x27;CENTRO&#x27;</span>, <span class="hljs-string">&#x27;LATINA&#x27;</span>, <span class="hljs-string">&#x27;CHAMARTIN&#x27;</span>, <span class="hljs-string">&#x27;TETUAN&#x27;</span>, <span class="hljs-string">&#x27;VICALVARO&#x27;</span>, <span class="hljs-string">&#x27;BARAJAS&#x27;</span>)
+<span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> DESC_DISTRITO, DESC_BARRIO
+</code></pre>
+<pre><code class="language-sql"><span class="hljs-keyword">SELECT</span> DESC_DISTRITO, DESC_BARRIO,
+    <span class="hljs-built_in">max</span>(EspanolesHombres) <span class="hljs-keyword">AS</span> EspanolesHombres
+<span class="hljs-keyword">FROM</span> padron_parquet
+<span class="hljs-keyword">WHERE</span> DESC_DISTRITO <span class="hljs-keyword">IN</span> (<span class="hljs-string">&#x27;CENTRO&#x27;</span>, <span class="hljs-string">&#x27;LATINA&#x27;</span>, <span class="hljs-string">&#x27;CHAMARTIN&#x27;</span>, <span class="hljs-string">&#x27;TETUAN&#x27;</span>, <span class="hljs-string">&#x27;VICALVARO&#x27;</span>, <span class="hljs-string">&#x27;BARAJAS&#x27;</span>)
+<span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> DESC_DISTRITO, DESC_BARRIO
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>parquet</th>
+<th>particion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hive</td>
+<td>25.068</td>
+<td>28.002</td>
+</tr>
+<tr>
+<td>Impala</td>
+<td>0.27</td>
+<td>0.61</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Por alguna razón, las tablas particionadas no han rendido como se esperaba. Algún problema de optimización habrá en este caso concreto pero lo normal es que funcione mejor.</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="5-trabajando-con-tablas-en-hdfs">5. Trabajando con tablas en HDFS</h2>
+<p>A continuación vamos a hacer una inspección de las tablas, tanto externas (no gestionadas) como internas (gestionadas). Este apartado se hará si se tiene acceso y conocimiento previo sobre cómo insertar datos en HDFS.</p>
+<ol>
+<li>
+<p>Crear un documento de texto en el almacenamiento local que contenga una secuencia de números distribuidos en filas y separados por columnas, llámalo datos1 y que sea por ejemplo:</p>
+<p>1,2,3
+4,5,6
+7,8,9</p>
+</li>
+<li>
+<p>Crear un segundo documento (datos2) con otros números pero la misma estructura.
+<img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\datostxt.png" alt="datostxt"></p>
+</li>
+<li>
+<p>Crear un directorio en HDFS con un nombre a placer, por ejemplo, /test. Si estás en una máquina Cloudera tienes que asegurarte de que el servicio HDFS está activo ya que puede no iniciarse al encender la máquina (puedes hacerlo desde el Cloudera Manager). A su vez, en las máquinas Cloudera es posible (dependiendo de si usamos Hive desde consola o desde Hue) que no tengamos permisos para crear directorios en HDFS salvo en el directorio /user/cloudera.</p>
+<p><code>hdfs dfs -mkdir /user/cloudera/testpadron</code></p>
+</li>
+<li>
+<p>Mueve tu fichero datos1 al directorio que has creado en HDFS con un comando desde consola.</p>
+<p><code>hdfs dfs -put /home/cloudera/Desktop/datos1 /user/cloudera/testpadron/</code></p>
+</li>
+<li>
+<p>Desde Hive, crea una nueva database por ejemplo con el nombre numeros. Crea una tabla que no sea externa y sin argumento location con tres columnas numéricas, campos separados por coma y delimitada por filas. La llamaremos por ejemplo numeros_tbl.</p>
+<pre><code class="language-sql"><span class="hljs-keyword">CREATE</span> DATABASE numeros;
+USE numeros;
+</code></pre>
+<pre><code class="language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> numeros_tbl (col1 <span class="hljs-type">INT</span>, col2 <span class="hljs-type">INT</span>, col3 <span class="hljs-type">INT</span>) <span class="hljs-type">ROW</span> FORMAT DELIMITED FIELDS TERMINATED <span class="hljs-keyword">BY</span> <span class="hljs-string">&#x27;,&#x27;</span>;
+</code></pre>
+</li>
+<li>
+<p>Carga los datos de nuestro fichero de texto datos1 almacenado en HDFS en la tabla de Hive. Consulta la localización donde estaban anteriormente los datos almacenados. ¿Siguen estando ahí? ¿Dónde están?. Borra la tabla, ¿qué ocurre con los datos almacenados en HDFS?</p>
+<ol>
+<li>El archivo ya no está en /user/cloudera/testpadron/</li>
+<li>escribiendo en hive <code>DESCRIBE FORMATTED numeros_tbl;</code> obtenemos la información que queremos. Los datos se encuentran en <code>hdfs://quickstart.cloudera:8020/user/hive/warehouse/numeros.db/numeros_tbl</code>
+<img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\hdfsloc.png" alt="hdfsloc"></li>
+<li>después de borrar la tabla, los datos no se encuentran en hdfs ya</li>
+</ol>
+</li>
+<li>
+<p>Vuelve a mover el fichero de texto datos1 desde el almacenamiento local al directorio anterior en HDFS.</p>
+</li>
+<li>
+<p>Desde Hive, crea una tabla externa sin el argumento location. Y carga datos1 (desde HDFS) en ella. ¿A dónde han ido los datos en HDFS? Borra la tabla ¿Qué ocurre con los datos en hdfs?</p>
+<pre><code class="language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">EXTERNAL</span> <span class="hljs-keyword">TABLE</span> numeros_tbl_externa (col1 <span class="hljs-type">INT</span>, col2 <span class="hljs-type">INT</span>, col3 <span class="hljs-type">INT</span>) <span class="hljs-type">ROW</span> FORMAT DELIMITED FIELDS TERMINATED <span class="hljs-keyword">BY</span> <span class="hljs-string">&#x27;,&#x27;</span>;
+</code></pre>
+<ol>
+<li>esta vez los datos se mantienen en la carpeta <code>/user/cloudera/testpadron/datos1</code></li>
+<li>al borrar la tabla, los datos siguen también en la warehouse, es decir al finalizar el proceso los datos se mantienen en ambos directorios</li>
+</ol>
+</li>
+<li>
+<p>Borra el fichero datos1 del directorio en el que estén. Vuelve a insertarlos en el directorio que creamos inicialmente (/test). Vuelve a crear la tabla numeros desde hive pero ahora de manera externa y con un argumento location que haga referencia al directorio donde los hayas situado en HDFS (/test). No cargues los datos de ninguna manera explícita. Haz una consulta sobre la tabla que acabamos de crear que muestre todos los registros. ¿Tiene algún contenido?</p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\rmput.png" alt="rmput"></p>
+<pre><code class="language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">EXTERNAL</span> <span class="hljs-keyword">TABLE</span> numeros_tbl_externa (col1 <span class="hljs-type">INT</span>, col2 <span class="hljs-type">INT</span>, col3 <span class="hljs-type">INT</span>)
+<span class="hljs-type">ROW</span> FORMAT DELIMITED FIELDS TERMINATED <span class="hljs-keyword">BY</span> <span class="hljs-string">&#x27;,&#x27;</span>
+LOCATION <span class="hljs-string">&#x27;/user/cloudera/testpadron/&#x27;</span>;
+</code></pre>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\externaloc.png" alt="externaloc"></p>
+<blockquote>
+<p>Como vemos, no hace falta definir de manera explícita los datos</p>
+</blockquote>
+</li>
+<li>
+<p>Inserta el fichero de datos creado al principio, &quot;datos2&quot; en el mismo directorio de HDFSS que &quot;datos1&quot;. Vuelve a hacer la consulta anterior sobre la misma tabla. ¿Qué salida muestra?</p>
+<blockquote>
+<p>La salida de ahora es la unión de las dos tablas, es decir algo así</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr>
+<td>7</td>
+<td>8</td>
+<td>9</td>
+</tr>
+<tr>
+<td>10</td>
+<td>11</td>
+<td>12</td>
+</tr>
+<tr>
+<td>20</td>
+<td>21</td>
+<td>22</td>
+</tr>
+<tr>
+<td>30</td>
+<td>31</td>
+<td>32</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Extrae conclusiones de todos estos anteriores apartados.</p>
+<p>En general, podemos concluir que trabajar con tablas en HDFS nos permite tener un almacenamiento distribuido y seguro para nuestros datos. Al crear tablas internas en Hive, los datos son almacenados directamente en HDFS y están gestionados por Hive. Si borramos la tabla de Hive, los datos también son eliminados de HDFS. En cambio, al crear tablas externas en Hive, los datos son almacenados en HDFS pero no son gestionados por Hive, lo que también nos permite editar las tablas desde fuera de Hive. Si borramos la tabla de Hive, los datos no son eliminados de HDFS y siguen estando disponibles para ser utilizados por otras tablas externas o aplicaciones. Además, al crear tablas externas podemos especificar una ubicación en HDFS donde estén almacenados los datos, lo que nos permite tener un control más preciso sobre su ubicación y uso.</p>
+</li>
+</ol>
+<h2 id="6-un-poquito-de-spark">6. Un poquito de Spark</h2>
+<p>La siguiente sección de la práctica se abordará si ya se tienen suficientes conocimientos de
+Spark, en concreto de el manejo de DataFrames, y el manejo de tablas de Hive a través de
+Spark.sql.</p>
+<ol>
+<li>
+<p>Comenzamos realizando la misma práctica que hicimos en Hive en Spark, importando el csv. Sería recomendable intentarlo con opciones que quiten las &quot;&quot; de los campos, que ignoren los espacios innecesarios en los campos, que sustituyan los valores vacíos por 0 y que infiera el esquema.</p>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> path = <span class="hljs-string">&quot;/home/cloudera/ejercicios/padron/estadisticas202212.csv&quot;</span>
+<span class="hljs-keyword">val</span> df = sqlContext.read.format(<span class="hljs-string">&quot;com.databricks.spark.csv&quot;</span>).option(<span class="hljs-string">&quot;quote&quot;</span>, <span class="hljs-string">&quot;&quot;</span>).option(<span class="hljs-string">&quot;ignoreLeadingWhiteSpace&quot;</span>, <span class="hljs-string">&quot;true&quot;</span>).option(<span class="hljs-string">&quot;ignoreTrailingWhiteSpace&quot;</span>, <span class="hljs-string">&quot;true&quot;</span>).option(<span class="hljs-string">&quot;nullValue&quot;</span>, <span class="hljs-string">&quot;0&quot;</span>).option(<span class="hljs-string">&quot;sep&quot;</span>, <span class="hljs-string">&quot;;&quot;</span>).load(path)
+</code></pre>
+<blockquote>
+<p>No fucniona correctamente, hacemos el apartado 2.</p>
+</blockquote>
+</li>
+<li>
+<p>De manera alternativa también se puede importar el csv con menos tratamiento en la importación y hacer todas las modificaciones para alcanzar el mismo estado de limpieza de los datos con funciones de Spark.</p>
+<p>lo hacemos en windows (spark 3.2.)</p>
+<pre><code>val path = &quot;C:/Users/didac.blanco/Documents/recursos/BIG DATA/curso/practica padron/estadisticas202212.csv&quot;
+val df = spark.read.option(&quot;inferSchema&quot;, &quot;true&quot;)
+    .option(&quot;header&quot;, &quot;true&quot;)
+    .option(&quot;sep&quot;, &quot;;&quot;)
+    .csv(path)
+
+val dfTrim = df.select(df.columns.map(c=&gt;trim(col(c)).alias(c)): _*)
+
+val padron = dfTrim.select(dfTrim.columns.map(c =&gt; when(col(c).isNull, 0).otherwise(col(c)).alias(c)): _*)
+</code></pre>
+</li>
+<li>
+<p>Enumera todos los barrios diferentes.</p>
+<pre><code>val barrios = padron.select(&quot;DESC_BARRIO&quot;).distinct().collect().toList
+</code></pre>
+</li>
+<li>
+<p>Crea una vista temporal de nombre &quot;padron&quot; y a través de ella cuenta el número de barrios diferentes que hay.</p>
+<pre><code>padron.createOrReplaceTempView(&quot;padron&quot;)
+spark.sql(&quot;SELECT COUNT(DISTINCT DESC_BARRIO) FROM padron&quot;).show()
+</code></pre>
+</li>
+<li>
+<p>Crea una nueva columna que muestre la longitud de los campos de la columna DESC_DISTRITO y que se llame &quot;longitud&quot;.</p>
+<pre><code>val padronLongitud = padron.withColumn(&quot;longitud&quot;, length(col(&quot;DESC_DISTRITO&quot;)))
+</code></pre>
+</li>
+<li>
+<p>Crea una nueva columna que muestre el valor 5 para cada uno de los registros de la tabla.</p>
+<pre><code>val padronNuevaColumna = padronLongitud.withColumn(&quot;nueva_columna&quot;, lit(5))
+</code></pre>
+</li>
+<li>
+<p>Borra esta columna.</p>
+<pre><code>val padronDrop = padronNuevaColumna.drop(&quot;nw&quot;)
+</code></pre>
+</li>
+<li>
+<p>Particiona el DataFrame por las variables DESC_DISTRITO y DESC_BARRIO.</p>
+<pre><code>val padronParticionado = padron.repartition(col(&quot;DESC_DISTRITO&quot;), col(&quot;DESC_BARRIO&quot;))
+</code></pre>
+</li>
+<li>
+<p>Almacénalo en caché. Consulta en el puerto 4040 (UI de Spark) de tu usuario local el estado de los rdds almacenados.</p>
+<blockquote>
+<p>No sale nada (DUDA)</p>
+</blockquote>
+</li>
+<li>
+<p>Lanza una consulta contra el DF resultante en la que muestre el número total de &quot;espanoleshombres&quot;, &quot;espanolesmujeres&quot;, &quot;extranjeroshombres&quot; y &quot;extranjerosmujeres&quot; para cada barrio de cada distrito. Las columnas distrito y barrio deben ser las primeras en aparecer en el show. Los resultados deben estar ordenados en orden de más a menos según la columna &quot;extranjerosmujeres&quot; y desempatarán por la columna &quot;extranjeroshombres&quot;.</p>
+<pre><code>val resultado = padronParticionado
+.select(&quot;DESC_DISTRITO&quot;, &quot;DESC_BARRIO&quot;, &quot;ESPANOLESHOMBRES&quot;, &quot;ESPANOLESMUJERES&quot;, &quot;EXTRANJEROSHOMBRES&quot;, &quot;EXTRANJEROSMUJERES&quot;)
+.groupBy(&quot;DESC_DISTRITO&quot;, &quot;DESC_BARRIO&quot;)
+.agg(
+    sum(&quot;ESPANOLESHOMBRES&quot;).alias(&quot;espanoleshombres&quot;),
+    sum(&quot;ESPANOLESMUJERES&quot;).alias(&quot;espanolesmujeres&quot;),
+    sum(&quot;EXTRANJEROSHOMBRES&quot;).alias(&quot;extranjeroshombres&quot;),
+    sum(&quot;EXTRANJEROSMUJERES&quot;).alias(&quot;extranjerosmujeres&quot;)
+)
+.sort(desc(&quot;extranjerosmujeres&quot;), desc(&quot;extranjeroshombres&quot;))
+
+resultado.show()
+</code></pre>
+</li>
+<li>
+<p>Elimina el registro en caché.</p>
+<p><code>padronParticionado.unpersist()</code></p>
+</li>
+<li>
+<p>Crea un nuevo DataFrame a partir del original que muestre únicamente una columna con DESC_BARRIO, otra con DESC_DISTRITO y otra con el número total de &quot;espanoleshombres&quot; residentes en cada distrito de cada barrio. Únelo (con un join) con el DataFrame original a través de las columnas en común.</p>
+<pre><code>val nuevoDF = padron
+.select(&quot;DESC_DISTRITO&quot;, &quot;DESC_BARRIO&quot;, &quot;ESPANOLESHOMBRES&quot;)
+.groupBy(&quot;DESC_DISTRITO&quot;, &quot;DESC_BARRIO&quot;)
+.agg(sum(&quot;ESPANOLESHOMBRES&quot;).alias(&quot;espanoleshombres&quot;))
+
+val resultado = padron.join(nuevoDF, Seq(&quot;DESC_DISTRITO&quot;, &quot;DESC_BARRIO&quot;))
+</code></pre>
+</li>
+<li>
+<p>Repite la función anterior utilizando funciones de ventana. (over(Window.partitionBy.....)).</p>
+<pre><code>import org.apache.spark.sql.functions._
+import org.apache.spark.sql.expressions.Window
+val nuevoDF = padron
+.select(&quot;DESC_DISTRITO&quot;, &quot;DESC_BARRIO&quot;, &quot;ESPANOLESHOMBRES&quot;)
+.withColumn(&quot;espanoleshombres&quot;, sum(&quot;ESPANOLESHOMBRES&quot;)
+.over(Window.partitionBy(&quot;DESC_DISTRITO&quot;, &quot;DESC_BARRIO&quot;)))
+</code></pre>
+</li>
+<li>
+<p>Mediante una función Pivot muestra una tabla (que va a ser una tabla de contingencia) que contenga los valores totales (la suma de valores) de espanolesmujeres para cada distrito y en cada rango de edad (COD_EDAD_INT). Los distritos incluidos deben ser únicamente CENTRO, BARAJAS y RETIRO y deben figurar como columnas. El aspecto debe ser similar a este:
+<img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\ej14.png" alt="ej14"></p>
+<pre><code>import org.apache.spark.sql.types.IntegerType
+val resultado = padron
+.filter($&quot;DESC_DISTRITO&quot;.isin(&quot;CENTRO&quot;, &quot;BARAJAS&quot;, &quot;RETIRO&quot;))
+.select(col(&quot;COD_EDAD_INT&quot;).cast(IntegerType).alias(&quot;COD_EDAD_INT&quot;), col(&quot;DESC_DISTRITO&quot;), col(&quot;ESPANOLESMUJERES&quot;))
+.groupBy(&quot;COD_EDAD_INT&quot;)
+.pivot(&quot;DESC_DISTRITO&quot;)
+.agg(sum(&quot;ESPANOLESMUJERES&quot;).alias(&quot;espanolesmujeres&quot;))
+.orderBy(&quot;COD_EDAD_INT&quot;)
+
+resultado.show()
+</code></pre>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\pivot.png" alt="pivot"></p>
+</li>
+<li>
+<p>Utilizando este nuevo DF, crea 3 columnas nuevas que hagan referencia a qué porcentaje de la suma de &quot;espanolesmujeres&quot; en los tres distritos para cada rango de edad representa cada uno de los tres distritos. Debe estar redondeada a 2 decimales. Puedes imponerte la condición extra de no apoyarte en ninguna columna auxiliar creada para el caso.</p>
+<pre><code>val resultadoConPorcentajes = resultado
+.withColumn(&quot;porcentaje_centro&quot;, round(col(&quot;CENTRO&quot;) / (col(&quot;CENTRO&quot;)+col(&quot;BARAJAS&quot;)+col(&quot;RETIRO&quot;)), 2))
+.withColumn(&quot;porcentaje_barajas&quot;, round(col(&quot;BARAJAS&quot;) / (col(&quot;CENTRO&quot;)+col(&quot;BARAJAS&quot;)+col(&quot;RETIRO&quot;)), 2))
+.withColumn(&quot;porcentaje_retiro&quot;, round(col(&quot;RETIRO&quot;) / (col(&quot;CENTRO&quot;)+col(&quot;BARAJAS&quot;)+col(&quot;RETIRO&quot;)), 2))
+
+resultadoConPorcentajes.show()
+</code></pre>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\porcentajes.png" alt="porcentajes"></p>
+</li>
+<li>
+<p>Guarda el archivo csv original particionado por distrito y por barrio (en ese orden) en un directorio local. Consulta el directorio para ver la estructura de los ficheros y comprueba que es la esperada.</p>
+<pre><code>val outDir = &quot;C:/Users/didac.blanco/Documents/recursos/BIG DATA/curso/practica padron&quot;
+val outputDF = padron.repartition(col(&quot;DESC_DISTRITO&quot;),col(&quot;DESC_BARRIO&quot;))
+outputDF.write.csv(outDir)
+</code></pre>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\practica padron\imagenes\output.png" alt="output"></p>
+</li>
+<li>
+<p>Haz el mismo guardado pero en formato parquet. Compara el peso del archivo con el resultado anterior.</p>
+<p>el resultado es parecido al anterior, sin embargo ocupa unas 50 veces menos</p>
+</li>
+</ol>
+<h2 id="y-si-juntamos-spark-y-hive">¿Y si juntamos Spark y Hive?</h2>
+<p>Por último, prueba a hacer los ejercicios sugeridos en la parte de Hive con el csv &quot;Datos Padrón&quot; (incluyendo la importación con Regex) utilizando desde Spark EXCLUSIVAMENTE sentencias spark.sql, es decir, importar los archivos desde local directamente como tablasde Hive y haciendo todas las consultas sobre estas tablas sin transformarlas en ningún momento en DataFrames ni DataSets.</p>
+<p><code>spark.sql(&lt;\&lt;query&gt;&gt;).show()</code></p>
+
+        <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+        
+    </body>
+    </html>

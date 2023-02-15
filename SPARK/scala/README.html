@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+/* From extension ms-toolsai.jupyter */
+/* These classnames are inherited from bootstrap, but are present in most notebook renderers */
+
+.alert {
+    width: auto;
+    padding: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.alert > *:last-child {
+    margin-bottom: 0;
+}
+#preview > .alert:last-child {
+    /* Prevent this being set to zero by the default notebook stylesheet */
+    padding-bottom: 1em;
+}
+
+.alert-success {
+    /* Note there is no suitable color available, so we just copy "info" */
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-info {
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-warning {
+    background-color: var(--theme-warning-background);
+    color: var(--theme-warning-foreground);
+}
+.alert-danger {
+    background-color: var(--theme-error-background);
+    color: var(--theme-error-foreground);
+}
+
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <ol>
+<li>
+<p>Dado un número entero, determine si es par o impar.</p>
+<pre><code class="language-Scala"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">esPar</span></span>(num: <span class="hljs-type">Int</span>): <span class="hljs-type">Boolean</span> = {
+  <span class="hljs-keyword">if</span> (num % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+  }
+}
+
+scala&gt; <span class="hljs-keyword">val</span> prueba1 = <span class="hljs-number">1</span>
+prueba1: <span class="hljs-type">Int</span> = <span class="hljs-number">1</span>
+
+scala&gt; esPar(prueba1)
+res0: <span class="hljs-type">Boolean</span> = <span class="hljs-literal">false</span>
+
+</code></pre>
+</li>
+<li>
+<p>Dado una lista de enteros, calcule la suma de todos los elementos en la lista.</p>
+<pre><code class="language-Scala">scala&gt; <span class="hljs-keyword">val</span> lista = <span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>)
+lista: <span class="hljs-type">List</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>)
+
+scala&gt; <span class="hljs-keyword">var</span> sum = <span class="hljs-number">0</span>
+sum: <span class="hljs-type">Int</span> = <span class="hljs-number">0</span>
+
+scala&gt; lista.foreach(sum += _)
+
+scala&gt; sum
+res2: <span class="hljs-type">Int</span> = <span class="hljs-number">15</span>
+</code></pre>
+</li>
+<li>
+<p>Dada la cadena &quot;Anita lava la tina&quot;, determine si es un palíndromo (es decir, si se lee igual al derecho y al revés).</p>
+<blockquote>
+<p>Como la cadena ofrecida es solo palíndromo si no tenemos en cuenta los espacios, vamos a incluír a la función que creemos que primero elimine los espacios. De paso también nos aseguramos que obvie los signos de puntuación y que no sea sensible a mayúsculas</p>
+</blockquote>
+<pre><code class="language-Scala"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">esPalindromo</span></span>(cadena: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span> = {
+  <span class="hljs-keyword">val</span> cadenaSinEspacios = cadena.replaceAll(<span class="hljs-string">&quot;\\s+&quot;</span>, <span class="hljs-string">&quot;&quot;</span>)
+  <span class="hljs-keyword">val</span> cadenaSinSignos = cadenaSinEspacios.replaceAll(<span class="hljs-string">&quot;[^a-zA-Z0-9]&quot;</span>, <span class="hljs-string">&quot;&quot;</span>)
+  <span class="hljs-keyword">val</span> cadenaMinusculas = cadenaSinSignos.toLowerCase
+  <span class="hljs-keyword">val</span> cadenaInvertida = cadenaMinusculas.reverse
+  <span class="hljs-keyword">if</span> (cadenaMinusculas == cadenaInvertida) {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+  }
+}
+
+scala&gt; println(esPalindromo(<span class="hljs-string">&quot;Anita lava la tina&quot;</span>)) <span class="hljs-comment">// imprime &quot;true&quot;</span>
+<span class="hljs-literal">true</span>
+
+scala&gt; println(esPalindromo(<span class="hljs-string">&quot;A Santa at NASA!&quot;</span>)) <span class="hljs-comment">// imprime &quot;true&quot;</span>
+<span class="hljs-literal">true</span>
+
+scala&gt; println(esPalindromo(<span class="hljs-string">&quot;hola mundo&quot;</span>))
+<span class="hljs-literal">false</span>
+
+</code></pre>
+</li>
+<li>
+<p>Dado una lista de cadenas, devuelva una nueva lista que contenga solo las cadenas únicas (sin duplicados).</p>
+<pre><code class="language-Scala"><span class="hljs-keyword">val</span> lista1 = <span class="hljs-type">List</span>(<span class="hljs-string">&quot;perro&quot;</span>, <span class="hljs-string">&quot;gato&quot;</span>, <span class="hljs-string">&quot;conejo&quot;</span>, <span class="hljs-string">&quot;perro&quot;</span>, <span class="hljs-string">&quot;pájaro&quot;</span>, <span class="hljs-string">&quot;gato&quot;</span>)
+<span class="hljs-keyword">val</span> lista2 = <span class="hljs-type">List</span>(<span class="hljs-string">&quot;manzana&quot;</span>, <span class="hljs-string">&quot;pera&quot;</span>, <span class="hljs-string">&quot;naranja&quot;</span>, <span class="hljs-string">&quot;kiwi&quot;</span>, <span class="hljs-string">&quot;manzana&quot;</span>, <span class="hljs-string">&quot;plátano&quot;</span>, <span class="hljs-string">&quot;pera&quot;</span>, <span class="hljs-string">&quot;naranja&quot;</span>)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">eliminarDuplicados</span></span>(lista: <span class="hljs-type">List</span>[<span class="hljs-type">String</span>]): <span class="hljs-type">List</span>[<span class="hljs-type">String</span>] = {
+  <span class="hljs-keyword">return</span> lista.toSet.toList
+}
+
+scala&gt; println(eliminarDuplicados(lista1))
+<span class="hljs-type">List</span>(perro, gato, conejo, pájaro)
+
+scala&gt; println(eliminarDuplicados(lista2))
+<span class="hljs-type">List</span>(manzana, pera, kiwi, plátano, naranja)
+</code></pre>
+</li>
+<li>
+<p>Dado un número entero, calcule su factorial (es decir, el producto de todos los números enteros desde 1 hasta el número dado).</p>
+<pre><code class="language-Scala"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">factorial</span></span>(n: <span class="hljs-type">Int</span>): <span class="hljs-type">Int</span> = {
+  <span class="hljs-keyword">if</span> (n &lt;= <span class="hljs-number">1</span>) <span class="hljs-number">1</span>
+  <span class="hljs-keyword">else</span> n * factorial(n - <span class="hljs-number">1</span>)
+}
+scala&gt; factorial(<span class="hljs-number">3</span>)
+res9: <span class="hljs-type">Int</span> = <span class="hljs-number">6</span>
+
+scala&gt; factorial(<span class="hljs-number">10</span>)
+res10: <span class="hljs-type">Int</span> = <span class="hljs-number">3628800</span>
+</code></pre>
+</li>
+<li>
+<p>Dado una lista de números, devuelva el número máximo de la lista.</p>
+<pre><code class="language-Scala">scala&gt; println(lista.max)
+<span class="hljs-number">5</span>
+</code></pre>
+</li>
+<li>
+<p>Dado una lista de números, devuelva el número mínimo de la lista.</p>
+<pre><code class="language-Scala">scala&gt; println(lista.min)
+<span class="hljs-number">1</span>
+</code></pre>
+</li>
+<li>
+<p>Dado una cadena, devuelva una nueva cadena en la que se hayan eliminado todas las vocales.</p>
+<pre><code class="language-Scala"><span class="hljs-keyword">val</span> input = <span class="hljs-string">&quot;Hola, mundo!&quot;</span>
+<span class="hljs-keyword">val</span> output = input.replaceAll(<span class="hljs-string">&quot;[aeiou]&quot;</span>, <span class="hljs-string">&quot;&quot;</span>)
+output: <span class="hljs-type">String</span> = <span class="hljs-type">Hl</span>, mnd!
+</code></pre>
+</li>
+<li>
+<p>Dado una lista de números, devuelva una nueva lista con los números ordenados de menor a mayor.</p>
+<pre><code class="language-Scala"><span class="hljs-keyword">val</span> lista = <span class="hljs-type">List</span>(<span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">7</span>, <span class="hljs-number">12</span>, <span class="hljs-number">9</span>, <span class="hljs-number">2</span>)
+
+<span class="hljs-keyword">val</span> sortedNumbers = lista.sortWith(_ &lt; _)
+
+scala&gt; println(sortedNumbers)
+<span class="hljs-type">List</span>(<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">7</span>, <span class="hljs-number">9</span>, <span class="hljs-number">12</span>)
+</code></pre>
+</li>
+<li>
+<p>Define una clase Persona que tenga los atributos nombre y edad, y un método esMayorEdad que devuelva true si la persona tiene 18 años o más y false en caso contrario. Luego, crea una instancia de la clase Persona y usa el método esMayorEdad para verificar si la persona es mayor de edad.</p>
+<pre><code class="language-Scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Persona</span>(<span class="hljs-params">val nombre: <span class="hljs-type">String</span>, val edad: <span class="hljs-type">Int</span></span>) </span>{
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">esMayorEdad</span></span>(): <span class="hljs-type">Boolean</span> = {
+    <span class="hljs-keyword">return</span> edad &gt;= <span class="hljs-number">18</span>
+  }
+}
+<span class="hljs-keyword">val</span> persona = <span class="hljs-keyword">new</span> <span class="hljs-type">Persona</span>(<span class="hljs-string">&quot;Juan&quot;</span>, <span class="hljs-number">25</span>)
+
+scala&gt; println(persona.esMayorEdad())
+<span class="hljs-literal">true</span>
+
+</code></pre>
+</li>
+</ol>
+
+        
+        
+    </body>
+    </html>

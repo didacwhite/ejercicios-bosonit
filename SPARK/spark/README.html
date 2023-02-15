@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Spark Exercises</title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+/* From extension ms-toolsai.jupyter */
+/* These classnames are inherited from bootstrap, but are present in most notebook renderers */
+
+.alert {
+    width: auto;
+    padding: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.alert > *:last-child {
+    margin-bottom: 0;
+}
+#preview > .alert:last-child {
+    /* Prevent this being set to zero by the default notebook stylesheet */
+    padding-bottom: 1em;
+}
+
+.alert-success {
+    /* Note there is no suitable color available, so we just copy "info" */
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-info {
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-warning {
+    background-color: var(--theme-warning-background);
+    color: var(--theme-warning-foreground);
+}
+.alert-danger {
+    background-color: var(--theme-error-background);
+    color: var(--theme-error-foreground);
+}
+
+</style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="spark-exercises">Spark Exercises</h1>
+<p>Basado en el pdf EXERCISES SPARK BIT - EN</p>
+<ul>
+<li><a href="#spark-exercises">Spark Exercises</a>
+<ul>
+<li><a href="#module-1-exercise-using-the-spark-shell">Module 1. Exercise: Using the Spark Shell</a></li>
+<li><a href="#module-2-exercise-starting-with-rdds">Module 2. Exercise: Starting with RDDs</a>
+<ul>
+<li><a href="#a-exploration-of-plain-file-1">A. Exploration of plain file 1</a></li>
+<li><a href="#b-exploration-of-plain-file-2">B. Exploration of plain file 2</a></li>
+<li><a href="#c-exploration-of-a-set-of-plain-files-a-folder">C. Exploration of a set of plain files a folder</a></li>
+</ul>
+</li>
+<li><a href="#module-4-exercise-working-with-pairrdds">Module 4. Exercise: Working with PairRDDs</a>
+<ul>
+<li><a href="#a--work-with-every-data-of-the-logs-folder-cusersdidacblancodesktopbitdataweblogs">A- Work with every data of the logs folder: “C:\Users\didac.blanco\Desktop\BIT\data\weblogs”</a></li>
+<li><a href="#b--work-with-every-data-of-the-logs-folder-homebitdataaccountscvs">B- Work with every data of the “logs” folder: “/home/BIT/data/accounts.cvs”</a></li>
+<li><a href="#c--work-with-more-methods-on-pairs-rdd">C- Work with more methods on pairs RDD</a></li>
+</ul>
+</li>
+<li><a href="#module-51-exercise-sparksql-json">Module 5.1. Exercise: SparkSQL (JSON)</a></li>
+<li><a href="#module-53-exercise-sparksql-dataframes">Module 5.3. Exercise: SparkSQL (DataFrames)</a></li>
+<li><a href="#modulo-54-ejercicios-opcionales-trabajando-con-sparksql">Modulo 5.4. Ejercicios opcionales: Trabajando con SparkSQL</a></li>
+<li><a href="#module-61-exercise-spark-streaming-i">Module 6.1. Exercise: Spark Streaming I</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="module-1-exercise-using-the-spark-shell">Module 1. Exercise: Using the Spark Shell</h2>
+<p>The purpose of this exercise is to work with the Spark Shell in Scala to read a file in a RDD.
+Tasks to be done:</p>
+<ol>
+<li>
+<p>Start the Spark Shell for Scala and get familiar with the information that appears on the
+screen (Infos, warnings, Scala’s version, Spark’s version …). It will take a little while to
+get started.</p>
+<blockquote>
+<p>spark-shell</p>
+</blockquote>
+<blockquote>
+<p>pyspark</p>
+</blockquote>
+</li>
+<li>
+<p>Check if a context “sc” has been successfully created as we can see in the documentation. You should see something like this in your screen:
+res0:org.apache.spark.SparkContext= org.apache.spark.SparkContext@”alphanum”</p>
+<blockquote>
+<p>Escribir “sc”</p>
+</blockquote>
+<blockquote>
+<p>En python sale:
+&quot;&lt;SparkContext master=local[*] appName=PySparkShell&gt;&quot;</p>
+</blockquote>
+</li>
+<li>
+<p>Using the auto-complete command on SparkContext you can see a list of available
+methods. The Auto-complete function consists of pressing tabulator key after typing the
+SparkContext object followed by a dot.
+<img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\SPARK\spark\imagenes\module1.png" alt="module1"></p>
+</li>
+<li>
+<p>To exit the Shell you can type “exit” or you can press CTRL + C.</p>
+</li>
+</ol>
+<h2 id="module-2-exercise-starting-with-rdds">Module 2. Exercise: Starting with RDDs</h2>
+<p>The objective of this exercise is to practice with RDD’s trough Spark Shell, for which we will use
+external files.</p>
+<p>A common practice testing phase of data analitics is to analyze small files that are subsets of
+related datasets to be used in production. Sometimes, these files are not physically in any
+node of the cluster, so it will be necessary to import them in some way</p>
+<p>A simple way to do these transfers between our Host and the VM/Cluster is through tools like
+Winscp (<a href="https://winscp.net/eng/download.php">https://winscp.net/eng/download.php</a>).
+Another option to do this is as in the previous exercises, in other words, through a shared folder
+with the VM or copying the files directly to the VM.</p>
+<h3 id="a-exploration-of-plain-file-1">A. Exploration of plain file 1</h3>
+<p>Tasks to be done:</p>
+<blockquote>
+<p>Al trabajar desde el propio Windows, los primeros 5 pasos no los realizo tal y como dice.</p>
+</blockquote>
+<ol>
+<li>
+<p>Start the Spark Shell if you have exited in the previous exercise.</p>
+</li>
+<li>
+<p>For this exercise we are going to work with local data
+To access to a local file, we will type, before the path, the word “file:”</p>
+</li>
+<li>
+<p>Create a folder called BIT in “/home” in a way in which it will be created a path
+“/home/BIT” and copy inside it every data file necessary to the course:
+Copy ‘data_spark’ folder to the virtual machine as in other occasions y get
+familiar with their content</p>
+</li>
+<li>
+<p>Inside ‘data_spark’ you will find the file ‘relato.txt’. Copy that file to the virtual machine
+in the next path: “/home/BIT/data/relato.txt”</p>
+</li>
+<li>
+<p>Visualize the file with a text editor like ‘gedit’ or ‘vi’ through the shell with ‘cat’
+command.</p>
+</li>
+<li>
+<p>Create a RDD called “relato”, it RDD should contain the content of the file using ‘textFile’
+method</p>
+<p><code>val relato = spark.read.textFile(&quot;C:\\Users\\didac.blanco\\Desktop\\BIT\\data\\relato.txt&quot;)</code></p>
+<p><code>relato = sc.textFile(&quot;C:\\Users\\didac.blanco\\Desktop\\BIT\\data\\relato.txt&quot;)</code></p>
+</li>
+<li>
+<p>Once you have done it, notes that the RDD has not yet been created. This will happen
+when we will execute an action on the RDD.</p>
+</li>
+<li>
+<p>Count the number of lines of the RDD y take a look to the result. If that result is 23, it’s
+correct.</p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\SPARK\spark\imagenes\module2.png" alt="module2"></p>
+</li>
+<li>
+<p>Execute “collect()” method on the RDD and observe the result. Remember what we said
+during the course about when it’s recommendable to use this method.</p>
+<blockquote>
+<p>Hay que tener precaución con el métedo collect() porque devuelve todos los datos en local en el driver de Spark y podría causar problemas de memoria con RDDs muy grandes</p>
+</blockquote>
+<p><code>val collectedRDD = relato.collect()</code></p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\SPARK\spark\imagenes\module2.1.png" alt="module2.1"></p>
+</li>
+<li>
+<p>Observe the rest of methods that we can apply on the RDD like we saw in the last
+exercise</p>
+<p>Algunos métodos interesantes aplicables a RDDs son:</p>
+<p><code>filter</code>: permite filtrar los elementos de un RDD mediante una función de filtro especificada</p>
+<p><code>map</code>: permite transformar cada elemento de un RDD mediante una función de transformación especificada</p>
+<p><code>flatMap</code>: permite transformar cada elemento de un RDD en una secuencia de elementos, y luego concatenar todas las secuencias en un único RDD</p>
+<p><code>reduce</code>: permite reducir todos los elementos de un RDD a un único valor mediante una función de reducción especificada</p>
+<p><code>sortBy</code>: permite ordenar los elementos de un RDD mediante una función de clave especificada</p>
+<p><code>distinct</code>: permite eliminar duplicados en un RDD</p>
+<p><code>union</code>: permite combinar dos RDDs en un único RDD</p>
+<p><code>intersection</code>: permite obtener la intersección de dos RDDs (es decir, los elementos que están presentes en ambos RDDs)</p>
+</li>
+<li>
+<p>If you have time, research about how to use “foreach” function to visualize the content
+of the RDD in a more appropriate way to understand it</p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\SPARK\spark\imagenes\module2.2.png" alt="module2.2"></p>
+<p>En python nos encontramos que <code>.collect()</code> ha creado una lista en vez de otro RDD, lo cual hace que no podamos escribir la misma sentencia en python.</p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\SPARK\spark\imagenes\python1.png" alt="python1"></p>
+</li>
+</ol>
+<h3 id="b-exploration-of-plain-file-2">B. Exploration of plain file 2</h3>
+<p>Tasks to be done</p>
+<ol>
+<li>
+<p>Copy the weblogs folder contained in the Spark’s exercises folder to
+“/home/BIT/data/weblogs/” and checks its content</p>
+</li>
+<li>
+<p>Choose one of the files, open it and study how it’s structured every one of their lines
+(the data that contains, separators (white space), etc…)</p>
+</li>
+<li>
+<p>116.180.70.237 is the IP, 128 is the user number y GET /KBDOC-00031.html HTTP/1.0
+is the article where the action rests.</p>
+</li>
+<li>
+<p>Create a variable that contains the path of the file, for example: file:/home/BIT/data/weblogs/2013-09-15.log</p>
+<p><code>val logPath = &quot;file:///C:/Users/didac.blanco/Desktop/BIT/data/weblogs/2013-09-15.log&quot;</code></p>
+<p>En python <code>log_path = &quot;file:///C:/Users/didac.blanco/Desktop/BIT/data/weblogs/2013-09-15.log&quot;</code></p>
+</li>
+<li>
+<p>Create an RDD with the content of the file called ‘logs’</p>
+<p><code>val logs = sc.textFile(logPath)</code></p>
+<p><code>logs = sc.textFile(log_path)</code></p>
+</li>
+<li>
+<p>Create a new RDD, ‘jpglogs’, containing only the RDD lines that contain the character
+string “.jpg”. You can use the ‘contains()’ method.</p>
+<p><code>val jpglogs = logs.filter(x =&gt; x.contains(&quot;.jpg&quot;))</code></p>
+<p><code>jpglogs = logs.filter(lambda x: &quot;.jpg&quot; in x)</code></p>
+</li>
+<li>
+<p>Print in the screen the 5 first lines of ‘jpglogs’</p>
+<p><code>jpglogs.take(5).foreach(println)</code></p>
+<pre><code class="language-python"><span class="hljs-keyword">for</span> log <span class="hljs-keyword">in</span> jpglogs.take(<span class="hljs-number">5</span>):
+    <span class="hljs-built_in">print</span>(log)
+</code></pre>
+</li>
+<li>
+<p>It is possible to nest several methods in the same line. Create a variable ‘jpglogs2’ that
+returns the number of lines containing the character string “.jpg”.</p>
+<p><code>val jpglogs2 = jpglogs.count</code></p>
+<p><code>jpglogs2 = jpglogs.count()</code></p>
+</li>
+<li>
+<p>We will now start using one of the most important functions in Spark: “map()”. To do
+this, take the ‘logs’ RDD and calculate the length of the first 5 lines. You can use the
+functions: “size()” or “length()”. Remember that the “map()” function execute one
+function on each line of the RDD, not on the total set of the RDD.</p>
+<p><code>logs.take(5).map(line =&gt; line.length()).foreach(println)</code></p>
+<blockquote>
+<p>La diferencia de python en este caso es que logs.take(5) devuelve una lista, en la cual no se puede aplicar el método map() de pySpark, la única opción es aplicar la función map() de la siguiente manera, aplicando posteriormente la función list para que nos devuelva el resultado. Tener en cuenta que esta forma es para utilizar map(), hay otras maneras de conseguir el resultado sin usar map().</p>
+</blockquote>
+<p><code>list(map(lambda x: print(len(x)), logs.take(5)))</code></p>
+</li>
+<li>
+<p>Print in the screen every word that contains each of the first 5 lines of the ‘logs’ RDD.
+You can use the function: “split()”.</p>
+<p><code>logs.take(5).foreach(line =&gt; line.split(&quot; &quot;).foreach(println))</code></p>
+<p><code>[line.split(&quot; &quot;) for line in logs.take(5)]</code></p>
+</li>
+<li>
+<p>Map the contents of the logs to an RDD called “logwords” whose contents are arrays of
+words for each line.</p>
+<p><code>val logwords = logs.map(line =&gt; line.split(&quot; &quot;))</code></p>
+<p><code>logwords = logs.map(lambda x: x.split(&quot; &quot;))</code></p>
+</li>
+<li>
+<p>Create a new RDD called “ips” from RDD “logs” that only contains the IPs of each line</p>
+<p><code>val ips = logs.map(line =&gt; line.split(&quot; &quot;)(0))</code></p>
+<p><code>ips = logs.map(lambda line: line.split(&quot; &quot;)[0])</code></p>
+</li>
+<li>
+<p>Print in the screen the first 5 lines of “ips”</p>
+<p><code>ips.take(5).foreach(println)</code></p>
+<p><code>[print(line) for line in ips.take(5)]</code></p>
+</li>
+<li>
+<p>Take a look to the content of “ips” with “collect()” function. You will find it’s not intuitive
+enough. Try using the “foreach” command.</p>
+<p><code>ips.collect()</code></p>
+<pre><code class="language-py"><span class="hljs-keyword">for</span> ip <span class="hljs-keyword">in</span> ips.collect():
+    <span class="hljs-built_in">print</span>(ip)
+</code></pre>
+</li>
+<li>
+<p>Create a “for” loop to display the contents of the first 10 lines of “ips”. Help: A ‘for’ loop
+has the following structure:
+scala&gt; for (x &lt;- rdd.take()) { print(x) }</p>
+<p><code>for (ip &lt;- ips.take(10)) {println(ip)}</code></p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\SPARK\spark\imagenes\module2B1.png" alt="module2b1"></p>
+<pre><code class="language-py"><span class="hljs-keyword">for</span> ip <span class="hljs-keyword">in</span> ips.take(<span class="hljs-number">10</span>):
+    <span class="hljs-built_in">print</span>(ip)
+</code></pre>
+</li>
+<li>
+<p>Save the whole content of “ips” in a text file using the method “saveAsTextFile” (in the
+path: “/home/cloudera/iplist”) and take a look at its contents:</p>
+<p><code>ips.saveAsTextFile(&quot;C:\\Users\\didac.blanco\\Desktop\\BIT\\iplist&quot;)</code>
+<code>ips.saveAsTextFile(&quot;C:\\Users\\didac.blanco\\Desktop\\BIT\\iplist_python&quot;)</code></p>
+</li>
+</ol>
+<h3 id="c-exploration-of-a-set-of-plain-files-a-folder">C. Exploration of a set of plain files a folder</h3>
+<p>Tasks to do:</p>
+<ol>
+<li>
+<p>Create an RDD that only contains the IPs of every document of the path:
+“C:\Users\didac.blanco\Desktop\BIT\data\weblogs”. Save its contents in the path: “C:\Users\didac.blanco\Desktop\BIT\iplistw”
+and observe its content</p>
+<pre><code>val logs = sc.textFile(&quot;C:\\Users\\didac.blanco\\Desktop\\BIT\\data\\weblogs&quot;)
+val ips = logs.map(_.split(&quot; &quot;)(0))
+ips.saveAsTextFile(&quot;C:\\Users\\didac.blanco\\Desktop\\BIT\\iplistw&quot;)
+</code></pre>
+<pre><code class="language-py">logs = sc.textFile(<span class="hljs-string">&quot;C:\\Users\\didac.blanco\\Desktop\\BIT\\data\\weblogs&quot;</span>)
+ips = logs.<span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> x: x.split(<span class="hljs-string">&quot; &quot;</span>)[<span class="hljs-number">0</span>])
+ips.saveAsTextFile(<span class="hljs-string">&quot;C:\\Users\\didac.blanco\\Desktop\\BIT\\iplistw_python&quot;</span>)
+</code></pre>
+<p>o, en una única línea (en scala):</p>
+<p><code>sc.textFile(&quot;C:\\Users\\didac.blanco\\Desktop\\BIT\\data\\weblogs&quot;).map(_.split(&quot; &quot;)(0)).saveAsTextFile(&quot;C:\\Users\\didac.blanco\\Desktop\\BIT\\iplistw2&quot;)</code></p>
+</li>
+<li>
+<p>From the “logs” RDD, create an RDD called “htmllogs” containing only: IP and user ID of
+each “html” file. The user ID is the third field of each log line. Then print the first 5 lines.
+An example would be:</p>
+<p><code>val htmllogs = logs.map(x =&gt; x.split(&quot; &quot;)(0)+&quot;/&quot;+x.split(&quot; &quot;)(2))</code></p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\SPARK\spark\imagenes\module2C.png" alt="module2C"></p>
+<p><code>htmllogs = logs.map(lambda x: x.split(&quot; &quot;)[0]+&quot;/&quot;+x.split(&quot; &quot;)[2])</code></p>
+</li>
+</ol>
+<h2 id="module-4-exercise-working-with-pairrdds">Module 4. Exercise: Working with PairRDDs</h2>
+<p>The objective of this exercise is to get familiar with the work with pair RDD.</p>
+<h3 id="a--work-with-every-data-of-the-logs-folder-cusersdidacblancodesktopbitdataweblogs">A- Work with every data of the logs folder: “C:\Users\didac.blanco\Desktop\BIT\data\weblogs”</h3>
+<p>Tasks to do:</p>
+<ol>
+<li>
+<p>Using MapReduce count the number of requests of each user, in other words, count the
+number of times that each user appears on a line of a log. For that:</p>
+<p>a. Use a Map to create a RDD that contains the pair (ID,1), where the key is the ID
+field and the Value is the number 1. Remember that ID field is the third element
+of each line. The data obtained should look like this:</p>
+<pre><code>(userida, 1)
+(userida, 1)
+(useridb, 1)
+</code></pre>
+<p>b. Use a Reduce to sum the values of each “userid”. The data obtained should look
+like this:</p>
+<pre><code>(userida, 4)
+(useridb, 8)
+(useridc, 12)
+</code></pre>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> idRDD = logs.map(line =&gt; (line.split(<span class="hljs-string">&quot; &quot;</span>)(<span class="hljs-number">2</span>), <span class="hljs-number">1</span>))
+<span class="hljs-keyword">val</span> sumRDD = idRDD.reduceByKey((x,y)=&gt;x+y)
+</code></pre>
+<pre><code class="language-py">idRDD = logs.<span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> line: (line.split(<span class="hljs-string">&quot; &quot;</span>)[<span class="hljs-number">2</span>], <span class="hljs-number">1</span>))
+sumRDD = idRDD.reduceByKey(<span class="hljs-keyword">lambda</span> x, y: x+y)
+</code></pre>
+</li>
+<li>
+<p>Show the users id and the number of accesses for the 10 users with the highest access
+number. For that:
+a. Use a “map()” to swap the Key for the Value, so you will get something like this
+(If you do not know how to do that, search on the internet):</p>
+<p>(4, userida)</p>
+<p>(8, useridb)</p>
+<p>(12, useridc)</p>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> sumRDD2 = sumRDD.map { <span class="hljs-keyword">case</span> (char, num) =&gt; (num, char) }
+</code></pre>
+<pre><code class="language-py">sumRDD2 = sumRDD.<span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> x: (x[<span class="hljs-number">1</span>], x[<span class="hljs-number">0</span>]))
+</code></pre>
+<p>b. Use the function we saw in theory to order a RDD. Please note that we want to
+show the data in descending order (From highest to lowest number of requests).
+Remember that the RDD obtained must have the same structure as the original
+RDD, in other words, with Key: “userid” and Value: “number of requests”. The
+result should be:</p>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> rddSorted = sumRDD2.sortBy(-_._1)
+<span class="hljs-keyword">val</span> resRddSorted = rddSorted.map { <span class="hljs-keyword">case</span> (num, char) =&gt; (char, num) }
+</code></pre>
+<pre><code class="language-py">rddSorted = sumRDD2.sortBy(<span class="hljs-keyword">lambda</span> x: -x[<span class="hljs-number">0</span>])
+resRddSorted = rddSorted.<span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> x: (x[<span class="hljs-number">1</span>], x[<span class="hljs-number">0</span>]))
+</code></pre>
+</li>
+<li>
+<p>Create a RDD with Key: “userid” and Value: a list of IP to which the previous “userid” has
+been connected (In other words, group the IPs for “userID”). Use “groupByKey()” function
+to do that, so the final result should be something like this:</p>
+<p>(userid,[20.1.34.55, 74.125.239.98])</p>
+<p>(userid,[75.175.32.10,245.33.1.1,66.79.233.99])</p>
+<p>(userid,[65.50.196.141])</p>
+<p>If you have enough time try to show the RDD obtained on the screen, so that its structure
+looks like this:</p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\SPARK\spark\imagenes\enunciado4-3.png" alt="enunciado4-3"></p>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> ipIdRDD = logs.map(line =&gt; (line.split(<span class="hljs-string">&quot; &quot;</span>)(<span class="hljs-number">2</span>), line.split(<span class="hljs-string">&quot; &quot;</span>)(<span class="hljs-number">0</span>)))
+<span class="hljs-keyword">val</span> groupedRDD = ipIdRDD.groupByKey()
+groupedRDD.foreach { <span class="hljs-keyword">case</span> (id, ips) =&gt;
+println(<span class="hljs-string">s&quot;ID: <span class="hljs-subst">$id</span>&quot;</span>)
+println(<span class="hljs-string">&quot;IPS:&quot;</span>)
+ips.foreach(println)
+}
+</code></pre>
+<pre><code class="language-py">ip_id_rdd = logs.<span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> x: (x.split(<span class="hljs-string">&quot; &quot;</span>)[<span class="hljs-number">2</span>], x.split(<span class="hljs-string">&quot; &quot;</span>)[<span class="hljs-number">0</span>]))
+grouped_rdd = ip_id_rdd.groupByKey()
+<span class="hljs-keyword">for</span> <span class="hljs-built_in">id</span>, ips <span class="hljs-keyword">in</span> grouped_rdd.collect():
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;ID: <span class="hljs-subst">{<span class="hljs-built_in">id</span>}</span>&quot;</span>)
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;IPS:&quot;</span>)
+    <span class="hljs-keyword">for</span> ip <span class="hljs-keyword">in</span> ips:
+        <span class="hljs-built_in">print</span>(ip)
+</code></pre>
+</li>
+</ol>
+<h3 id="b--work-with-every-data-of-the-logs-folder-homebitdataaccountscvs">B- Work with every data of the “logs” folder: “/home/BIT/data/accounts.cvs”</h3>
+<p>Tasks to do:</p>
+<ol>
+<li>
+<p>Open “accounts.csv” with a text editor and study its content. You will see that the first
+field is the user id, which corresponds to the user id of the web server log files. The rest
+of the fields are: date, name, surname, direction…</p>
+</li>
+<li>
+<p>Do a JOIN between the logs data of the previous exercise and the data of “accounts.csv”,
+so that you will get a set of data with “userid” as Key and all the information of the user
+(including “userid” field) followed by the number of visits of each user as Value. The
+steps to execute are:</p>
+<p>a. Do a “map()” of the data of “accounts.csv” so that the Key will be “userid” and
+the Value will be the complete line (including “userid” field).</p>
+<blockquote>
+<p>Como se trata de un archivo csv, se puede abrir directamente creando un data frame con <code>df = spark.read.csv('ruta/al/archivo.csv', header=True, inferSchema=True)</code> (en python) pero en este caso vamos a abrirlo como los archivos anteriores para crear un RDD</p>
+</blockquote>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> csvRDD = sc.textFile(<span class="hljs-string">&quot;C:\\Users\\didac.blanco\\Desktop\\BIT\\data\\accounts.csv&quot;</span>)
+<span class="hljs-keyword">val</span> accounts = csvRDD.map(x =&gt; (x.split(&#x27;,&#x27;)(<span class="hljs-number">0</span>), x.split(&#x27;,&#x27;)))
+</code></pre>
+<pre><code class="language-py">csvRDD = sc.textFile(<span class="hljs-string">&#x27;C:\\Users\\didac.blanco\\Desktop\\BIT\\data\\accounts.csv&#x27;</span>)
+accounts = csvRDD.<span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> x: (x.split(<span class="hljs-string">&#x27;,&#x27;</span>)[<span class="hljs-number">0</span>], x.split(<span class="hljs-string">&#x27;,&#x27;</span>)))
+</code></pre>
+<p>b. Do a JOIN between the RDD recently created and the RDD that you created in
+the previous step, whose content is (userid, number of visits), so that you will get
+something like this:</p>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> rddjoin = accounts.join(sumRDD)
+</code></pre>
+<pre><code class="language-py">rddjoin = accounts.join(sumRDD)
+</code></pre>
+<p>c. Create a RDD from the previous RDD whose content will be userid, number of
+visits, name and surname of the first 5 lines, to get a structure like the next one
+(the image shows more lines than needed):</p>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> rddfilter = rddjoin.map{ <span class="hljs-keyword">case</span> (key, (list, count))=&gt;
+    (key, <span class="hljs-type">List</span>(list(<span class="hljs-number">0</span>),count,list(<span class="hljs-number">3</span>),list(<span class="hljs-number">4</span>)))
+}
+</code></pre>
+<pre><code class="language-py">rddfilter = rddjoin.<span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> x: (x[<span class="hljs-number">0</span>], [x[<span class="hljs-number">1</span>][<span class="hljs-number">0</span>][<span class="hljs-number">0</span>], x[<span class="hljs-number">1</span>][<span class="hljs-number">1</span>], x[<span class="hljs-number">1</span>][<span class="hljs-number">0</span>][<span class="hljs-number">3</span>], x[<span class="hljs-number">1</span>][<span class="hljs-number">0</span>][<span class="hljs-number">4</span>]]))
+</code></pre>
+</li>
+</ol>
+<h3 id="c--work-with-more-methods-on-pairs-rdd">C- Work with more methods on pairs RDD</h3>
+<p>Tasks to do:</p>
+<ol>
+<li>
+<p>Use “KeyBy” to create a RDD with accounts data but with the postal(ZIP) code as Key
+(ninth field of the accounts.csv file). You can research this method in the Spark’s Online
+API.</p>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> zip = csvRDD.map(x=&gt;x.split(&#x27;,&#x27;)).<span class="hljs-type">KeyBy</span>(x =&gt; x(<span class="hljs-number">8</span>))
+</code></pre>
+</li>
+<li>
+<p>Create a pair RDD with the postal (ZIP) code as the Key and a list of names (surname,
+name) of that postal code as the Value. Those fields are 5ª and 4ª respectively in
+“accounts.csv”.
+a. If you have time, study “mapValues()” function and try to use it to fulfill the
+purpose of this exercise</p>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> zipnames = zip.mapValues(values=&gt;values(<span class="hljs-number">4</span>)+&#x27;, &#x27;+values(<span class="hljs-number">3</span>))
+</code></pre>
+</li>
+<li>
+<p>Sort the data by postal code and then, for the first 5 postal codes, display the postal
+code and a list of names whose accounts are in this postal (ZIP) code. The output should be similar to:</p>
+<pre><code>--- 85003
+Jenkins,Thad
+Rick,Edward
+Lindsay,Ivy
+...
+--- 85004
+Morris,Eric
+Reiser,Hazel
+Gregg,Alicia
+Preston,Elizabeth
+</code></pre>
+<pre><code class="language-scala">zipnames.sortByKey().take(<span class="hljs-number">10</span>).foreach{
+    <span class="hljs-keyword">case</span> (x,y)=&gt;
+    println(<span class="hljs-string">&quot;---&quot;</span>+x)
+    y.foreach(println)
+}
+</code></pre>
+</li>
+</ol>
+<h2 id="module-51-exercise-sparksql-json">Module 5.1. Exercise: SparkSQL (JSON)</h2>
+<p>The purpose of this exercise is to get familiar with the use of the SQL module of Spark.
+Tasks to do:</p>
+<ol>
+<li>
+<p>Create a new SQLContext</p>
+<p><code>val sqlContext = spark.sqlContext</code></p>
+<pre><code class="language-py"><span class="hljs-keyword">from</span> pyspark.sql <span class="hljs-keyword">import</span> SQLContext
+sqlContext = SQLContext(sc)
+</code></pre>
+</li>
+<li>
+<p>Import the implicits that allow us to convert a RDD in a DataFrame</p>
+<p><code>import spark.implicits._</code></p>
+</li>
+<li>
+<p>Charge the dataset “zips.json”, which is found in the Spark’s exercises folder, in
+“/home/BIT/data/zips.json”. This dataset contains United States postal (ZIP) codes. You
+can use the command “ssc.load(“file path”, “format”)”. The dataset “zips.json” looks like
+this: <img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\SPARK\spark\imagenes\5.1.1.png" alt="5.1.1"></p>
+<p><code>val df = spark.read.format(&quot;json&quot;).load(&quot;C:/Users/didac.blanco/Desktop/BIT/data/zips.json&quot;)</code>
+o también:</p>
+<pre><code class="language-scala"><span class="hljs-keyword">val</span> rdd = sc.textFile(<span class="hljs-string">&quot;C:/Users/didac.blanco/Desktop/BIT/zips.json&quot;</span>)
+<span class="hljs-keyword">val</span> df = rdd.toDF()
+</code></pre>
+</li>
+<li>
+<p>View the data with “show()” command. You have to see a 5-column table with a subset
+of the file data. You can see that the postal code is “_id”, the city es “city”, the location
+“loc”, the population “pop and the state “state”.</p>
+<p><code>df.show()</code></p>
+</li>
+<li>
+<p>Get the postal (ZIP) codes whose population is greater than 10.000 using the API of
+DataFrames.</p>
+<p><code>val dfZIP = df.filter($&quot;pop&quot; &gt; 10000).select(&quot;_id&quot;)</code></p>
+</li>
+<li>
+<p>Store this table in a temporal file to execute SQL against it.</p>
+<pre><code>df.write.format(&quot;parquet&quot;).save(&quot;/tmp/zipcodes&quot;)
+val dfSQL = sqlContext.read.format(&quot;parquet&quot;).load(&quot;/tmp/zipcodes&quot;)
+df.createTempView(&quot;SQL&quot;)
+</code></pre>
+</li>
+<li>
+<p>Make the same query as in point 5, but this time using SQL</p>
+<pre><code>val results = sqlContext.sql(&quot;SELECT * FROM SQL WHERE pop &gt; 10000&quot;)
+</code></pre>
+</li>
+<li>
+<p>Using SQL, get the city with more than 100 postal (ZIP) codes.</p>
+<pre><code>sqlContext.sql(&quot;SELECT city, count(*) AS count FROM SQL GROUP BY city HAVING count(*) &gt; 100&quot;).show()
+</code></pre>
+<p>//Houston, 101</p>
+</li>
+<li>
+<p>Using SQL, get the population of the Wisconsin (WI) state.</p>
+<pre><code>sqlContext.sql(&quot;SELECT state, sum(pop) FROM SQL WHERE state = 'WI' GROUP BY state&quot;).show()
+</code></pre>
+<p>// ([WI,4891769])</p>
+</li>
+<li>
+<p>Using SQL, get the 5 most populated states</p>
+<pre><code>sqlContext.sql(&quot;SELECT state, sum(pop) FROM SQL GROUP BY state ORDER BY sum(pop) DESC LIMIT 5&quot;).show()
+</code></pre>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\SPARK\spark\imagenes\5.1.10.png" alt="5.1.10"></p>
+</li>
+</ol>
+<h2 id="module-53-exercise-sparksql-dataframes">Module 5.3. Exercise: SparkSQL (DataFrames)</h2>
+<p>The purpose of this exercise is to get a bit more familiar with the DataFrames API.</p>
+<ol>
+<li>
+<p>We create a SQL context</p>
+<p><code>val sqlContext = spark.sqlContext</code></p>
+</li>
+<li>
+<p>Import the implicits that allow us to convert RDDs to DataFrames and Rows</p>
+<pre><code>import sqlContext.implicits._
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{StructType,StructField,StringType}
+</code></pre>
+</li>
+<li>
+<p>We create a variable with the file path “C:\Users\didac.blanco\Desktop\BIT\dataDataSetPartidos.txt”. The lines
+have the following format:</p>
+<pre><code>idPartido::temporada::jornada::EquipoLocal::EquipoVisitant
+e::golesLocal::golesVisitante::fecha::timestamp
+</code></pre>
+<pre><code>val filePath: String = &quot;C:\\Users\\didac.blanco\\Desktop\\BIT\\data\\DataSetPartidos.txt&quot;
+</code></pre>
+</li>
+<li>
+<p>We store the content of the file in a variable.</p>
+<p><code>var data=sc.textFile(filePath)</code></p>
+</li>
+<li>
+<p>We create a variable that contains the schema of the data</p>
+<pre><code>val schemaString = &quot;idPartido::temporada::jornada::EquipoLocal::EquipoVisitante::golesLocal::golesVisitante::fecha::timestamp&quot;
+</code></pre>
+</li>
+<li>
+<p>We generate a schema based in the variable that contains the data schema that we
+have recently created</p>
+<pre><code>val schema = StructType(schemaString.split(&quot;::&quot;).map(fieldName =&gt; StructField(fieldName, StringType, true)))
+</code></pre>
+</li>
+<li>
+<p>We convert the files of our RDD to Rows</p>
+<pre><code>val rows = data.map(_.split(&quot;::&quot;)).map(p=&gt;Row(p(0),p(1),p(2),p(3).toString,p(4).toString,p(5).toString,p(6).toString,p(7),p(8).trim))
+</code></pre>
+</li>
+<li>
+<p>We apply the Schema to the RDD</p>
+<pre><code>val dfPartidos = sqlContext.createDataFrame(rows, schema)
+</code></pre>
+</li>
+<li>
+<p>We register the DataFrame as a table</p>
+<pre><code>dfPartidos.createOrReplaceTempView(&quot;partidos&quot;)
+</code></pre>
+<blockquote>
+<p>We are now ready to make queries about the DataFrame in the following format. The results of the queries are DataFrames and support operations such as normal
+RDDs. The columns of the results Row are accessible from an index or a field name</p>
+</blockquote>
+</li>
+<li>
+<p>Exercise: What is Oviedo’s goal record in a season as visitor?</p>
+<pre><code>val recordOviedoVisitor = sqlContext.sql(&quot;SELECT sum(golesVisitante) AS goles, temporada FROM partidos WHERE equipoVisitante='Real Oviedo' GROUP BY temporada ORDER BY goles DESC&quot;)
+recordOviedoVisitor.take(1).println
+</code></pre>
+</li>
+<li>
+<p>Who has been more seasons in 1 division: Sporting or Oviedo?</p>
+<pre><code>val temporadasOviedo = sqlContext.sql(&quot;SELECT count(distinct(temporada)) FROM partidos WHERE equipoLocal='Real Oviedo' or equipoVisitante='Real Oviedo'&quot;)
+val temporadasSporting = sqlContext.sql(&quot;SELECT count(distinct(temporada)) FROM partidos WHERE equipoLocal='Sporting de Gijon' or equipoVisitante='Sporting de Gijon'&quot;)
+temporadasOviedo.show()
+temporadasSporting.show()
+</code></pre>
+</li>
+</ol>
+<h2 id="modulo-54-ejercicios-opcionales-trabajando-con-sparksql">Modulo 5.4. Ejercicios opcionales: Trabajando con SparkSQL</h2>
+<p>The aim of this exercise is to consolidate the knowledge acquired with SparkSQL in a real
+environment. For this we have a dataset with all the episodes of the Simpsons, their seasons
+and their IMDB qualification (among other parameters).
+Ex1: Tasks to do</p>
+<ol>
+<li>
+<p>Take the dataset' simpsons_episodes. csv' provided by the teacher. Copy it to the virtual
+machine by dragging and dropping the file.</p>
+</li>
+<li>
+<p>Using the terminal, transfer this dataset to the HDFS (The default path of the HDFS is:
+hdfs: //quickstart. cloudera: 8020/user/cloudera, copy the dataset to this path.)</p>
+</li>
+<li>
+<p>The dataset we have is structured, that is, its columns have headers (as in a database).
+Take a moment to familiarize yourself with the dataset and its respective fields.</p>
+</li>
+<li>
+<p>The objective of this exercise is to obtain a graphical plot in which we can appreciate,
+graphically, the average score of the Simpsons' chapters during all their seasons. This
+exercise is a possible real case in which we can obtain information and extract
+conclusions by analyzing a multitude of data.</p>
+</li>
+<li>
+<p>To load ‘csv’ files into Spark we need to use this library, while to create the graphical
+plot from the data we obtain we need this one. To execute Spark from the terminal and
+indicate the libraries we want to use, we must execute the command (IMPORTANT TO
+EXECUTE WITHOUT SPACES):</p>
+<p><code>spark-shell --packages com.databricks:spark-csv_2.10:1.5.0,org.sameersingh.scalaplot:scalaplot:0.0.4</code></p>
+<ul>
+<li>Note that when executing the above command, Spark will automatically load the
+libraries, as it will download them from the Maven Central repository, where both
+are hosted.</li>
+</ul>
+</li>
+<li>
+<p>While loading the Spark console, you'll notice that it takes more time and that you see
+more information on the screen. This is due to the fact that Spark is downloading and
+adding the libraries indicated in the previous step. Once Spark has loaded, copy these
+IMPORTS to the console:</p>
+<pre><code>import org.sameersingh.scalaplot.Implicits._
+import org.sameersingh.scalaplot.MemXYSeries
+import org.sameersingh.scalaplot.XYData
+import org.sameersingh.scalaplot.XYChart
+import org.sameersingh.scalaplot.gnuplot.GnuplotPlotter;
+</code></pre>
+</li>
+<li>
+<p>Investigate on internet how to transform a CSV file into a Dataframe in Spark 1.6 and
+perform the transformation.</p>
+<ul>
+<li>HINT: As you can see in point 5, to carry out the transformation we have imported
+the library “com.databricks.spark.csv”.</li>
+</ul>
+<p><code>val df = spark.read.format(&quot;csv&quot;).option(&quot;header&quot;, &quot;true&quot;).load(&quot;C:/Users/didac.blanco/Desktop/BIT/data/simpsons.csv&quot;)</code></p>
+</li>
+<li>
+<p>As the data is structured, we will use SparkSQL. The development from here can be
+done in different ways, but, logically, the explanation of the exercise will focus on one
+of them. In the theory part we have seen that Spark can execute SQL commands over a
+dataset creating a virtual table using the method:</p>
+<pre><code>df.createOrReplaceTempView(&quot;VirtualTableName&quot;)
+</code></pre>
+<pre><code>df.createOrReplaceTempView(&quot;simpsons&quot;)
+</code></pre>
+</li>
+<li>
+<p>Once we have the virtual table created, we will have to create a DataFrame with the
+data: season and the average of the scores for that season. Look up your notes for the
+command to execute SQL code in Spark and make the result a DataFrame. Once you
+have the above command, it executes the SQL code necessary to obtain the data you
+are looking for. Hints:</p>
+<ul>
+<li>The “season” field is in STRING format, you will need to change it to INT.</li>
+<li>The resulting DataFrame must be sorted ASCENDENT by season number.</li>
+<li>You will find the predefined SQL functions CAST and MEAN very useful.</li>
+</ul>
+<pre><code>val dfSeasonRating = spark.sql(&quot;SELECT CAST(season AS INT), ROUND(MEAN(imdb_rating), 2) as avg_rating FROM simpsons GROUP BY season ORDER BY season ASC&quot;)
+</code></pre>
+</li>
+<li>
+<p>Once you execute what is required in the previous point, it displays the resulting
+Dataframe on screen to ensure that the result is as expected.</p>
+<ul>
+<li><code>df.show()</code></li>
+<li>Being df the Dataframe resulting from the execution of the previous step.</li>
+</ul>
+</li>
+<li>
+<p>As we are making a real case, we have been able to see that the data is not always in
+the format that interests us most (we have had to change the type of STRING to INT). It
+changes the format of the previous Dataframe to a PairRDD (RDD made up of a key
+and a value, the key being the season number and the value being the mean score for
+that season). You will find useful the functions seen in the theory.</p>
+</li>
+<li>
+<p>We are now entering the final stage of the exercise and we want to create, with our
+results, a linear plot that represents the information obtained, so that it is easier for us
+to extract conclusions. Now we need to divide the previous RDD, so that we will store
+in a variable Y the different seasons that we have analyzed, while we will store in a
+variable X the average scores of those seasons. Note that the variable ‘rdd’ is the name
+of the variable containing the PairRDD obtained in the previous step.</p>
+<ul>
+<li>val x =</li>
+<li>val y =</li>
+</ul>
+</li>
+<li>
+<p>Now open a new terminal. Make sure you are on the path:&quot;/home/cloudera&quot; and
+create a new folder called &quot;docs&quot;. Use the command &quot;mkdir&quot; to do this.</p>
+</li>
+<li>
+<p>In that same terminal, run the command: <code>sudo yum install gnuplot</code>. This command will
+install a utility needed to perform the linear diagram.</p>
+</li>
+<li>
+<p>Back at the Scala terminal, run the following code to create the linear diagram. Enter
+each line one at a time to avoid problems. Once executed and, if everything has gone
+well, searches for the result in the folder created in step 13.</p>
+<pre><code>val series = new MemXYSeries(x.collect(), y.collect(), &quot;score&quot;)
+val data = new XYData(series)
+val chart = new XYChart(&quot;Average Simpsons episode scores during their seasons&quot;, data)
+output(PNG(&quot;docs/&quot;, &quot;test&quot;), chart)
+</code></pre>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\SPARK\spark\imagenes\simpsongraph.png" alt="simpsongraph"></p>
+</li>
+</ol>
+<h2 id="module-61-exercise-spark-streaming-i">Module 6.1. Exercise: Spark Streaming I</h2>
+<p>The aim of this exercise is to get started in the use of Spark Streaming and observe its qualities.
+To do this, we will generate an execute a script in a terminal that will count the words that we
+introduce in another terminal as simulated streaming.
+Tasks to do</p>
+<ol>
+<li>
+<p>Visit Spark’s documentation <a href="https://spark.apache.org/docs/1.5.2/streaming-programming-guide.html">https://spark.apache.org/docs/1.5.2/streaming-programming-guide.html</a> and get familiar with the exercise. The aim is to do the same
+that it says on the web in “A Quick Example” section.</p>
+</li>
+<li>
+<p>Take a time to navigate through the website and to explore it. When you think you are
+ready, start the exercise.</p>
+</li>
+<li>
+<p>Open a new terminal and type the next command: “nc -lkv 4444”. What that command
+does is to send everything that you write to the 4444 port.</p>
+</li>
+<li>
+<p>Open a new terminal and start Spark’s shell in local mode with at least 2 threads,
+because we will need them to complete this exercise: “spark-shell --master local[2]”</p>
+</li>
+<li>
+<p>Now, access to the file “/usr/lib/spark/conf/log4j.properties”, and change the log level
+to ERROR, so that you can easily see the streaming of counted words returned by your
+script.</p>
+</li>
+<li>
+<p>Import the necessary classes to work with Spark Streaming</p>
+<pre><code>import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.StreamingContext._
+import org.apache.spark.streaming.Seconds
+</code></pre>
+</li>
+<li>
+<p>Create a SparkContext with a 5 seconds duration.</p>
+<pre><code>var ssc = new StreamingContext(sc,Seconds(5))
+</code></pre>
+</li>
+<li>
+<p>Create a DStream to read text from the port that you type in the command “nc”, you
+also have to type the hostname of your machine, which is “quickstart.cloudera”.</p>
+<pre><code>var mystream = ssc.socketTextStream(&quot;localhost&quot;,4444)
+</code></pre>
+</li>
+<li>
+<p>Create a MapReduce, as we saw in theory, to count the number of words that appear in
+each Stream.</p>
+<pre><code>var words = mystream.flatMap(line =&gt; line.split(&quot;\\W&quot;))
+var wordCounts = words.map(x =&gt; (x, 1)).reduceByKey((x,y) =&gt; x+y)
+</code></pre>
+</li>
+<li>
+<p>Print on the screen the results of each batch</p>
+<p><code>wordCounts.print()</code></p>
+</li>
+<li>
+<p>Start the Streaming Context and call to “awaitTermination” to wait until the task finish</p>
+<pre><code>ssc.start()
+ssc.awaitTermination()
+</code></pre>
+</li>
+<li>
+<p>You should see something like this:</p>
+<p><img src="file:///c:\Users\didac.blanco\Documents\recursos\BIG DATA\curso\SPARK\spark\imagenes\likethis19.png" alt="likethis19"></p>
+</li>
+<li>
+<p>Once you have finished, exit the terminal where the command “nc” is executed typing
+CNTRL +C.</p>
+</li>
+<li>
+<p>To run it from a script:
+spark-shell --master local[2] -i prueba.scala</p>
+</li>
+</ol>
+
+        <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+        
+    </body>
+    </html>
